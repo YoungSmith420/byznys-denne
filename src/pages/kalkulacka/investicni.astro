@@ -1,15 +1,18 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout
-  title="Investiční kalkulačka"
+  title="Investiční kalkulačka — složené úročení"
   description="Spočítej si, kolik budou mít tvé investice za 10, 20 nebo 40 let. Kalkulačka složeného úroku zdarma."
 >
 
   <!-- Hero -->
   <section class="pt-16 pb-10 border-b border-border">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <a href="/kalkulacka" class="inline-flex items-center gap-1.5 text-text-secondary text-sm hover:text-gold-primary transition-colors mb-4">
+        ← Všechny kalkulačky
+      </a>
       <p class="text-gold-primary text-sm font-semibold uppercase tracking-widest mb-3">Nástroje</p>
       <h1 class="font-display text-5xl md:text-6xl font-bold text-text-primary mb-4">
         Investiční kalkulačka
@@ -258,7 +261,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     let html = '';
 
-    // Grid lines
     for (let i = 0; i <= 4; i++) {
       const y = padT + (cH / 4) * i;
       const val = maxVal * (1 - i / 4);
@@ -271,7 +273,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       html += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#606060" font-size="11" font-family="Inter,sans-serif">${label}</text>`;
     }
 
-    // Bars
     yearlyFV.forEach((fv, i) => {
       const invested = Math.min(pv + pmt * (i + 1) * 12, fv);
       const ret = fv - invested;
@@ -286,7 +287,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         html += `<rect x="${x.toFixed(1)}" y="${(baseY - investedH - retH).toFixed(1)}" width="${barW.toFixed(1)}" height="${retH.toFixed(1)}" fill="#D4AF37" rx="2"/>`;
       }
 
-      // Year labels
       const yr = i + 1;
       const showLabel = years <= 20 ? true : yr % 5 === 0 || yr === years;
       if (showLabel) {
@@ -294,13 +294,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       }
     });
 
-    // X-axis label
     html += `<text x="${W / 2}" y="${H - 0}" text-anchor="middle" fill="#505050" font-size="11" font-family="Inter,sans-serif">Rok</text>`;
-
     svgEl.innerHTML = html;
   }
 
-  // Wire up sliders
   const sliders = document.querySelectorAll<HTMLInputElement>('.calc-slider');
   const displays: Record<string, string> = {
     initial: 'val-initial',

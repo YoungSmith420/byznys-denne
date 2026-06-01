@@ -1,0 +1,96 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Finanční kalkulačky"
+  description="Bezplatné finanční kalkulačky — investiční, hypoteční a mzdová. Spočítej si složené úročení, hypotéku nebo čistou mzdu."
+>
+
+  <!-- Hero -->
+  <section class="pt-16 pb-10 border-b border-border">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <p class="text-gold-primary text-sm font-semibold uppercase tracking-widest mb-3">Nástroje</p>
+      <h1 class="font-display text-5xl md:text-6xl font-bold text-text-primary mb-4">
+        Finanční kalkulačky
+      </h1>
+      <p class="text-text-secondary text-lg max-w-2xl">
+        Tři bezplatné kalkulačky pro klíčová finanční rozhodnutí. Investice, hypotéka nebo mzda — spočítej si to sám.
+      </p>
+    </div>
+  </section>
+
+  <!-- Calculator cards -->
+  <section class="py-16">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Investiční kalkulačka -->
+        <a href="/kalkulacka/investicni" class="group bg-card border border-gold-primary/20 rounded-2xl p-8 card-hover flex flex-col">
+          <div class="text-5xl mb-5">📊</div>
+          <h2 class="font-display text-2xl font-bold text-text-primary mb-2 group-hover:text-gold-primary transition-colors">
+            Investiční kalkulačka
+          </h2>
+          <p class="text-text-secondary text-sm leading-relaxed flex-1">
+            Kolik budou mít tvé peníze za 10, 20 nebo 40 let? Složené úročení v praxi — slidery, graf, okamžité výsledky.
+          </p>
+          <span class="text-gold-primary text-sm font-semibold mt-5 group-hover:text-gold-light transition-colors">
+            Otevřít kalkulačku →
+          </span>
+        </a>
+
+        <!-- Hypoteční kalkulačka -->
+        <a href="/kalkulacka/hypoteka" class="group bg-card border border-gold-primary/20 rounded-2xl p-8 card-hover flex flex-col relative overflow-hidden">
+          <div class="absolute top-3 right-3 bg-gold-primary/15 border border-gold-primary/30 rounded-full px-2.5 py-0.5 text-gold-primary text-xs font-semibold">
+            Nové
+          </div>
+          <div class="text-5xl mb-5">🏠</div>
+          <h2 class="font-display text-2xl font-bold text-text-primary mb-2 group-hover:text-gold-primary transition-colors">
+            Hypoteční kalkulačka
+          </h2>
+          <p class="text-text-secondary text-sm leading-relaxed flex-1">
+            Měsíční splátka, LTV, přeplatek a kompletní amortizační tabulka po letech. Zadej cenu nemovitosti a úrok.
+          </p>
+          <span class="text-gold-primary text-sm font-semibold mt-5 group-hover:text-gold-light transition-colors">
+            Otevřít kalkulačku →
+          </span>
+        </a>
+
+        <!-- Mzdová kalkulačka -->
+        <a href="/kalkulacka/mzda" class="group bg-card border border-gold-primary/20 rounded-2xl p-8 card-hover flex flex-col relative overflow-hidden">
+          <div class="absolute top-3 right-3 bg-gold-primary/15 border border-gold-primary/30 rounded-full px-2.5 py-0.5 text-gold-primary text-xs font-semibold">
+            Nové
+          </div>
+          <div class="text-5xl mb-5">💼</div>
+          <h2 class="font-display text-2xl font-bold text-text-primary mb-2 group-hover:text-gold-primary transition-colors">
+            Mzdová kalkulačka 2026
+          </h2>
+          <p class="text-text-secondary text-sm leading-relaxed flex-1">
+            Hrubá → čistá nebo čistá → hrubá. Kompletní rozpis srážek, náklad zaměstnavatele a efektivní daňová sazba.
+          </p>
+          <span class="text-gold-primary text-sm font-semibold mt-5 group-hover:text-gold-light transition-colors">
+            Otevřít kalkulačku →
+          </span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-16 border-t border-border">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="text-4xl mb-4">📚</div>
+      <h2 class="font-display text-3xl font-bold text-text-primary mb-3">
+        Chceš rozumět financím do hloubky?
+      </h2>
+      <p class="text-text-secondary mb-6">
+        Přečti si naše průvodce — od základů investování až po pokročilé strategie.
+      </p>
+      <a href="/clanky" class="btn-gold px-8 py-4 text-base">
+        Přečíst finanční články →
+      </a>
+    </div>
+  </section>
+
+</BaseLayout>

@@ -1,0 +1,380 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Mzdová kalkulačka 2026 — hrubá na čistou"
+  description="Přepočítej hrubou mzdu na čistou nebo obráceně. Platné sazby 2026 pro HPP s prohlášením poplatníka."
+>
+
+  <!-- Hero -->
+  <section class="pt-16 pb-10 border-b border-border">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <a href="/kalkulacka" class="inline-flex items-center gap-1.5 text-text-secondary text-sm hover:text-gold-primary transition-colors mb-4">
+        ← Všechny kalkulačky
+      </a>
+      <p class="text-gold-primary text-sm font-semibold uppercase tracking-widest mb-3">Nástroje</p>
+      <h1 class="font-display text-5xl md:text-6xl font-bold text-text-primary mb-4">
+        Mzdová kalkulačka 2026
+      </h1>
+      <p class="text-text-secondary text-lg max-w-2xl">
+        Přepočítej hrubou mzdu na čistou — nebo obráceně. Kompletní rozpis srážek, náklad firmy a efektivní daňová sazba.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main -->
+  <section class="py-12">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Direction toggle -->
+      <div class="flex gap-1.5 mb-10 bg-card border border-border rounded-2xl p-1.5 w-fit">
+        <button id="btn-h2c" class="mode-btn active px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200">
+          Hrubá → Čistá
+        </button>
+        <button id="btn-c2h" class="mode-btn px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-text-secondary hover:text-text-primary">
+          Čistá → Hrubá
+        </button>
+      </div>
+
+      <div class="grid lg:grid-cols-[1fr_380px] gap-10">
+
+        <!-- Input panel -->
+        <div class="space-y-8">
+
+          <!-- Hrubá mzda slider (mode: hruba→cista) -->
+          <div id="wrap-hruba" class="slider-group">
+            <div class="flex justify-between items-baseline mb-3">
+              <label class="text-text-primary font-semibold">Hrubá měsíční mzda</label>
+              <div class="flex items-baseline gap-1">
+                <span id="val-hruba" class="text-gold-primary font-display text-2xl font-bold">50 000</span>
+                <span class="text-text-secondary text-sm">Kč</span>
+              </div>
+            </div>
+            <input id="sl-hruba" type="range" min="22400" max="250000" step="500" value="50000" class="calc-slider" />
+            <div class="flex justify-between text-xs text-text-secondary mt-1">
+              <span>22 400 Kč (min. mzda)</span><span>250 000 Kč</span>
+            </div>
+          </div>
+
+          <!-- Čistá mzda slider (mode: cista→hruba) — hidden by default -->
+          <div id="wrap-cista" class="slider-group hidden">
+            <div class="flex justify-between items-baseline mb-3">
+              <label class="text-text-primary font-semibold">Čistá měsíční mzda</label>
+              <div class="flex items-baseline gap-1">
+                <span id="val-cista" class="text-gold-primary font-display text-2xl font-bold">39 270</span>
+                <span class="text-text-secondary text-sm">Kč</span>
+              </div>
+            </div>
+            <input id="sl-cista" type="range" min="19000" max="180000" step="100" value="39270" class="calc-slider" />
+            <div class="flex justify-between text-xs text-text-secondary mt-1">
+              <span>19 000 Kč</span><span>180 000 Kč</span>
+            </div>
+          </div>
+
+          <!-- Constants overview -->
+          <div class="bg-card border border-border rounded-xl p-5">
+            <p class="text-text-primary font-semibold text-sm mb-4">Sazby 2026 — HPP, podepsané prohlášení</p>
+            <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+              <span class="text-text-secondary">Daň do 146 901 Kč</span>
+              <span class="text-text-primary font-medium">15 %</span>
+              <span class="text-text-secondary">Daň nad 146 901 Kč</span>
+              <span class="text-text-primary font-medium">23 %</span>
+              <span class="text-text-secondary">Sleva na poplatníka</span>
+              <span class="text-text-primary font-medium">2 570 Kč / měs.</span>
+              <span class="text-text-secondary">Sociální (zaměstnanec)</span>
+              <span class="text-text-primary font-medium">7,1 %</span>
+              <span class="text-text-secondary">Zdravotní (zaměstnanec)</span>
+              <span class="text-text-primary font-medium">4,5 %</span>
+              <span class="text-text-secondary">Sociální (zaměstnavatel)</span>
+              <span class="text-text-primary font-medium">24,8 %</span>
+              <span class="text-text-secondary">Zdravotní (zaměstnavatel)</span>
+              <span class="text-text-primary font-medium">9,0 %</span>
+              <span class="text-text-secondary">Minimální mzda</span>
+              <span class="text-text-primary font-medium">22 400 Kč</span>
+            </div>
+          </div>
+
+          <p class="text-text-secondary text-xs leading-relaxed border-l-2 border-border pl-4">
+            Orientační výpočet pro zaměstnance na HPP s podepsaným prohlášením poplatníka, bez dalších slev
+            a daňového zvýhodnění na děti. Základ daně je zaokrouhlen na celé stokoruny nahoru.
+          </p>
+        </div>
+
+        <!-- Results panel -->
+        <div class="space-y-4">
+
+          <!-- Main result -->
+          <div class="bg-card border border-gold-primary/30 rounded-2xl p-8 text-center shadow-[0_0_40px_rgba(212,175,55,0.08)]">
+            <p id="main-label" class="text-text-secondary text-sm mb-2 uppercase tracking-widest font-medium">Čistá mzda</p>
+            <p id="result-main" class="font-display text-5xl font-bold text-gold-primary leading-none mb-1">–</p>
+            <p class="text-text-secondary text-xs">měsíčně na účet</p>
+          </div>
+
+          <!-- Breakdown srážek -->
+          <div class="bg-card border border-border rounded-xl p-5">
+            <p class="text-text-secondary text-xs uppercase tracking-widest font-medium mb-4">Rozpis srážek</p>
+            <div class="space-y-2.5">
+              <div class="flex justify-between text-sm">
+                <span class="text-text-secondary">Hrubá mzda</span>
+                <span id="row-hruba" class="text-text-primary font-medium tabular-nums">–</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-text-secondary">Záloha na daň (před slevou)</span>
+                <span id="row-dan-pred" class="text-text-primary font-medium tabular-nums">–</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-text-secondary">− Sleva na poplatníka</span>
+                <span class="text-accent-green font-medium">−&nbsp;2&nbsp;570 Kč</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-text-secondary">Daň po slevě</span>
+                <span id="row-dan" class="text-text-primary font-medium tabular-nums">–</span>
+              </div>
+              <div class="border-t border-border my-1"></div>
+              <div class="flex justify-between text-sm">
+                <span class="text-text-secondary">Sociální pojištění (7,1 %)</span>
+                <span id="row-soc" class="text-text-primary font-medium tabular-nums">–</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-text-secondary">Zdravotní pojištění (4,5 %)</span>
+                <span id="row-zdr" class="text-text-primary font-medium tabular-nums">–</span>
+              </div>
+              <div class="border-t border-border my-1"></div>
+              <div class="flex justify-between text-sm font-semibold">
+                <span class="text-text-primary">= Čistá mzda</span>
+                <span id="row-cista" class="text-gold-primary tabular-nums">–</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Employer cost -->
+          <div class="bg-card border border-border rounded-xl p-5">
+            <p class="text-text-secondary text-xs uppercase tracking-widest font-medium mb-4">Náklad zaměstnavatele</p>
+            <div class="space-y-2.5">
+              <div class="flex justify-between text-sm">
+                <span class="text-text-secondary">Hrubá mzda</span>
+                <span id="row-hruba-2" class="text-text-primary font-medium tabular-nums">–</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-text-secondary">+ Sociální (24,8 %)</span>
+                <span id="row-soc-zam" class="text-text-primary font-medium tabular-nums">–</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-text-secondary">+ Zdravotní (9,0 %)</span>
+                <span id="row-zdr-zam" class="text-text-primary font-medium tabular-nums">–</span>
+              </div>
+              <div class="border-t border-border my-1"></div>
+              <div class="flex justify-between text-sm font-semibold">
+                <span class="text-text-primary">= Celkový náklad firmy</span>
+                <span id="row-naklad" class="text-text-primary tabular-nums">–</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Effective rate -->
+          <div class="bg-card border border-border rounded-xl p-5">
+            <div class="flex justify-between items-center mb-3">
+              <div>
+                <p class="text-text-secondary text-xs uppercase tracking-widest font-medium">Efektivní sazba</p>
+                <p class="text-text-secondary text-xs mt-0.5">daň + pojistné / hrubá</p>
+              </div>
+              <span id="result-ef" class="font-display text-2xl font-bold text-gold-primary">–</span>
+            </div>
+            <div class="h-3 rounded-full overflow-hidden bg-border">
+              <div id="ef-bar" class="h-full bg-gold-primary rounded-full transition-all duration-500" style="width:0%"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-16 border-t border-border mt-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="text-4xl mb-4">💼</div>
+      <h2 class="font-display text-3xl font-bold text-text-primary mb-3">
+        Chceš vydělávat víc?
+      </h2>
+      <p class="text-text-secondary mb-6">
+        Přečti si naše průvodce — side hustle, podnikání na volné noze a kariérní growth.
+      </p>
+      <a href="/clanky" class="btn-gold px-8 py-4 text-base">
+        Přečíst finanční články →
+      </a>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  .calc-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    background: #2a2a2a;
+  }
+  .calc-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #D4AF37;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.5);
+    border: 3px solid #0a0a0a;
+    transition: box-shadow 0.2s;
+  }
+  .calc-slider::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.7);
+  }
+  .calc-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #D4AF37;
+    cursor: pointer;
+    border: 3px solid #0a0a0a;
+  }
+  .mode-btn.active {
+    background: #D4AF37;
+    color: #0a0a0a;
+  }
+</style>
+
+<script>
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  const fmtKc = (n: number) =>
+    new Intl.NumberFormat('cs-CZ', { maximumFractionDigits: 0 }).format(Math.round(n)) + ' Kč';
+  const fmtPct = (n: number) =>
+    new Intl.NumberFormat('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n) + ' %';
+
+  // ── Konstanty 2026 ─────────────────────────────────────────────────────────
+  const SLEVA_POPLATNIK  = 2570;
+  const PROG_ZAKLAD      = 146901;
+  const SOC_ZAM_PCT      = 0.071;
+  const ZDR_ZAM_PCT      = 0.045;
+  const SOC_ZAMESTNAV    = 0.248;
+  const ZDR_ZAMESTNAV    = 0.09;
+
+  // ── Výpočet hrubá → čistá ──────────────────────────────────────────────────
+  function calcFromGross(hruba: number) {
+    const zaklad   = Math.ceil(hruba / 100) * 100;
+    const danPred  = Math.min(zaklad, PROG_ZAKLAD) * 0.15
+                   + Math.max(0, zaklad - PROG_ZAKLAD) * 0.23;
+    const dan      = Math.max(0, danPred - SLEVA_POPLATNIK);
+    const soc      = Math.ceil(hruba * SOC_ZAM_PCT);
+    const zdr      = Math.ceil(hruba * ZDR_ZAM_PCT);
+    const cista    = hruba - dan - soc - zdr;
+    const socZam   = hruba * SOC_ZAMESTNAV;
+    const zdrZam   = hruba * ZDR_ZAMESTNAV;
+    const naklad   = hruba + socZam + zdrZam;
+    const efSazba  = hruba > 0 ? ((dan + soc + zdr) / hruba) * 100 : 0;
+    return { hruba, zaklad, danPred, dan, soc, zdr, cista, socZam, zdrZam, naklad, efSazba };
+  }
+
+  // ── Iterativní výpočet čistá → hrubá (binární hledání) ────────────────────
+  function grossFromNet(targetNet: number): number {
+    let lo = 1_000, hi = 10_000_000;
+    for (let i = 0; i < 120; i++) {
+      const mid = (lo + hi) / 2;
+      const net = calcFromGross(mid).cista;
+      if (Math.abs(net - targetNet) < 0.5) return mid;
+      if (net < targetNet) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+
+  // ── Render výsledků ────────────────────────────────────────────────────────
+  function renderResults(r: ReturnType<typeof calcFromGross>, mainIsNet: boolean) {
+    document.getElementById('result-main')!.textContent = fmtKc(mainIsNet ? r.cista : r.hruba);
+    document.getElementById('row-hruba')!.textContent   = fmtKc(r.hruba);
+    document.getElementById('row-hruba-2')!.textContent = fmtKc(r.hruba);
+    document.getElementById('row-dan-pred')!.textContent= fmtKc(r.danPred);
+    document.getElementById('row-dan')!.textContent     = fmtKc(r.dan);
+    document.getElementById('row-soc')!.textContent     = fmtKc(r.soc);
+    document.getElementById('row-zdr')!.textContent     = fmtKc(r.zdr);
+    document.getElementById('row-cista')!.textContent   = fmtKc(r.cista);
+    document.getElementById('row-soc-zam')!.textContent = fmtKc(r.socZam);
+    document.getElementById('row-zdr-zam')!.textContent = fmtKc(r.zdrZam);
+    document.getElementById('row-naklad')!.textContent  = fmtKc(r.naklad);
+    document.getElementById('result-ef')!.textContent   = fmtPct(r.efSazba);
+    (<HTMLElement>document.getElementById('ef-bar')).style.width = `${Math.min(r.efSazba, 100)}%`;
+  }
+
+  function updateSlider(el: HTMLInputElement) {
+    const min = +el.min, max = +el.max, val = +el.value;
+    const pct = ((val - min) / (max - min)) * 100;
+    el.style.background = `linear-gradient(to right, #D4AF37 ${pct}%, #2a2a2a ${pct}%)`;
+  }
+
+  // ── Stav ──────────────────────────────────────────────────────────────────
+  let mode: 'hruba' | 'cista' = 'hruba';
+
+  const wrapHruba = document.getElementById('wrap-hruba')!;
+  const wrapCista = document.getElementById('wrap-cista')!;
+  const slHruba   = <HTMLInputElement>document.getElementById('sl-hruba');
+  const slCista   = <HTMLInputElement>document.getElementById('sl-cista');
+  const btnH2C    = document.getElementById('btn-h2c')!;
+  const btnC2H    = document.getElementById('btn-c2h')!;
+  const mainLabel = document.getElementById('main-label')!;
+
+  function runCalc() {
+    if (mode === 'hruba') {
+      const hruba = +slHruba.value;
+      document.getElementById('val-hruba')!.textContent =
+        new Intl.NumberFormat('cs-CZ').format(hruba);
+      updateSlider(slHruba);
+      renderResults(calcFromGross(hruba), true);
+    } else {
+      const cista = +slCista.value;
+      document.getElementById('val-cista')!.textContent =
+        new Intl.NumberFormat('cs-CZ').format(cista);
+      updateSlider(slCista);
+      const hruba  = grossFromNet(cista);
+      renderResults(calcFromGross(hruba), false);
+    }
+  }
+
+  // ── Toggle ────────────────────────────────────────────────────────────────
+  function setMode(m: 'hruba' | 'cista') {
+    mode = m;
+    const isH = m === 'hruba';
+
+    btnH2C.classList.toggle('active', isH);
+    btnH2C.classList.toggle('text-text-secondary', !isH);
+    btnC2H.classList.toggle('active', !isH);
+    btnC2H.classList.toggle('text-text-secondary', isH);
+
+    wrapHruba.classList.toggle('hidden', !isH);
+    wrapCista.classList.toggle('hidden', isH);
+    mainLabel.textContent = isH ? 'Čistá mzda' : 'Hrubá mzda';
+
+    // Sync slider values on mode switch
+    if (!isH) {
+      // Set čistá slider to match current hrubá result
+      const currentNet = calcFromGross(+slHruba.value).cista;
+      const snapped = Math.round(currentNet / 100) * 100;
+      slCista.value = String(Math.max(+slCista.min, Math.min(+slCista.max, snapped)));
+    }
+
+    runCalc();
+  }
+
+  btnH2C.addEventListener('click', () => setMode('hruba'));
+  btnC2H.addEventListener('click', () => setMode('cista'));
+  slHruba.addEventListener('input', runCalc);
+  slCista.addEventListener('input', runCalc);
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  updateSlider(slHruba);
+  updateSlider(slCista);
+  runCalc();
+</script>

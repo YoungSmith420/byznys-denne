@@ -1,0 +1,366 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Hypoteční kalkulačka"
+  description="Spočítej si měsíční splátku hypotéky, LTV, přeplatek a kompletní amortizační tabulku. Kalkulačka zdarma."
+>
+
+  <!-- Hero -->
+  <section class="pt-16 pb-10 border-b border-border">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <a href="/kalkulacka" class="inline-flex items-center gap-1.5 text-text-secondary text-sm hover:text-gold-primary transition-colors mb-4">
+        ← Všechny kalkulačky
+      </a>
+      <p class="text-gold-primary text-sm font-semibold uppercase tracking-widest mb-3">Nástroje</p>
+      <h1 class="font-display text-5xl md:text-6xl font-bold text-text-primary mb-4">
+        Hypoteční kalkulačka
+      </h1>
+      <p class="text-text-secondary text-lg max-w-2xl">
+        Zadej parametry a okamžitě uvidíš měsíční splátku, celkový přeplatek a rozložení splátek po letech.
+      </p>
+    </div>
+  </section>
+
+  <!-- Main layout -->
+  <section class="py-12">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-[1fr_380px] gap-10">
+
+        <!-- Sliders -->
+        <div class="space-y-8">
+
+          <!-- Cena nemovitosti -->
+          <div class="slider-group">
+            <div class="flex justify-between items-baseline mb-3">
+              <label class="text-text-primary font-semibold">Cena nemovitosti</label>
+              <div class="flex items-baseline gap-1">
+                <span id="val-cena" class="text-gold-primary font-display text-2xl font-bold">4 000 000</span>
+                <span class="text-text-secondary text-sm">Kč</span>
+              </div>
+            </div>
+            <input id="cena" type="range" min="500000" max="20000000" step="100000" value="4000000" class="calc-slider" />
+            <div class="flex justify-between text-xs text-text-secondary mt-1">
+              <span>500 000 Kč</span><span>20 000 000 Kč</span>
+            </div>
+          </div>
+
+          <!-- Vlastní zdroje -->
+          <div class="slider-group">
+            <div class="flex justify-between items-baseline mb-3">
+              <label class="text-text-primary font-semibold">Vlastní zdroje</label>
+              <div class="flex items-baseline gap-1">
+                <span id="val-vlastni" class="text-gold-primary font-display text-2xl font-bold">800 000</span>
+                <span class="text-text-secondary text-sm">Kč</span>
+              </div>
+            </div>
+            <input id="vlastni" type="range" min="0" max="10000000" step="50000" value="800000" class="calc-slider" />
+            <div class="flex justify-between text-xs text-text-secondary mt-1">
+              <span>0 Kč</span><span>10 000 000 Kč</span>
+            </div>
+          </div>
+
+          <!-- Úroková sazba -->
+          <div class="slider-group">
+            <div class="flex justify-between items-baseline mb-3">
+              <label class="text-text-primary font-semibold">Úroková sazba (p.a.)</label>
+              <div class="flex items-baseline gap-1">
+                <span id="val-sazba" class="text-gold-primary font-display text-2xl font-bold">4,9</span>
+                <span class="text-text-secondary text-sm">% ročně</span>
+              </div>
+            </div>
+            <input id="sazba" type="range" min="0.5" max="15" step="0.1" value="4.9" class="calc-slider" />
+            <div class="flex justify-between text-xs text-text-secondary mt-1">
+              <span>0,5 %</span><span>15 %</span>
+            </div>
+          </div>
+
+          <!-- Doba splatnosti -->
+          <div class="slider-group">
+            <div class="flex justify-between items-baseline mb-3">
+              <label class="text-text-primary font-semibold">Doba splatnosti</label>
+              <div class="flex items-baseline gap-1">
+                <span id="val-roky" class="text-gold-primary font-display text-2xl font-bold">30</span>
+                <span class="text-text-secondary text-sm">let</span>
+              </div>
+            </div>
+            <input id="roky" type="range" min="5" max="30" step="1" value="30" class="calc-slider" />
+            <div class="flex justify-between text-xs text-text-secondary mt-1">
+              <span>5 let</span><span>30 let</span>
+            </div>
+          </div>
+
+          <!-- Info note -->
+          <p class="text-text-secondary text-xs leading-relaxed border-l-2 border-border pl-4">
+            Výpočet je orientační. Skutečné podmínky hypotéky závisí na bance, bonitě a dalších faktorech. Nejedná se o finanční poradenství.
+          </p>
+        </div>
+
+        <!-- Results panel -->
+        <div class="space-y-4">
+
+          <!-- Main result: měsíční splátka -->
+          <div class="bg-card border border-gold-primary/30 rounded-2xl p-8 text-center shadow-[0_0_40px_rgba(212,175,55,0.08)]">
+            <p class="text-text-secondary text-sm mb-2 uppercase tracking-widest font-medium">Měsíční splátka</p>
+            <p id="result-splatka" class="font-display text-5xl font-bold text-gold-primary leading-none mb-1">–</p>
+            <p class="text-text-secondary text-xs">anuitní splátka</p>
+          </div>
+
+          <!-- Sub results -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-card border border-border rounded-xl p-5 text-center">
+              <p class="text-text-secondary text-xs mb-1">Výše úvěru</p>
+              <p id="result-uver" class="font-display text-xl font-bold text-text-primary">–</p>
+            </div>
+            <div class="bg-card border border-border rounded-xl p-5 text-center">
+              <p class="text-text-secondary text-xs mb-1">LTV</p>
+              <p id="result-ltv" class="font-display text-xl font-bold text-text-primary">–</p>
+            </div>
+            <div class="bg-card border border-border rounded-xl p-5 text-center">
+              <p class="text-text-secondary text-xs mb-1">Celkem zaplaceno</p>
+              <p id="result-celkem" class="font-display text-xl font-bold text-text-primary">–</p>
+            </div>
+            <div class="bg-card border border-border rounded-xl p-5 text-center">
+              <p class="text-text-secondary text-xs mb-1">Přeplatek (úroky)</p>
+              <p id="result-preplatek" class="font-display text-xl font-bold text-accent-green">–</p>
+            </div>
+          </div>
+
+          <!-- Vlastní vs. úvěr bar -->
+          <div class="bg-card border border-border rounded-xl p-5">
+            <div class="flex justify-between text-xs text-text-secondary mb-3">
+              <span>Vlastní zdroje</span>
+              <span>Úvěr (LTV)</span>
+            </div>
+            <div class="h-4 rounded-full overflow-hidden bg-border flex">
+              <div id="bar-vlastni" class="h-full bg-accent-green transition-all duration-500" style="width:20%"></div>
+              <div id="bar-uver" class="h-full bg-gold-primary transition-all duration-500" style="width:80%"></div>
+            </div>
+            <div class="flex justify-between mt-2 text-xs">
+              <span id="bar-vlastni-pct" class="text-accent-green font-medium">20 %</span>
+              <span id="bar-uver-pct" class="text-gold-primary font-medium">80 %</span>
+            </div>
+          </div>
+
+          <!-- Explanation -->
+          <div class="bg-card border border-border rounded-xl p-5 text-xs text-text-secondary leading-relaxed space-y-2.5">
+            <p>
+              <span class="text-text-primary font-semibold">LTV (Loan-to-Value)</span> — poměr úvěru k ceně nemovitosti.
+              Banky typicky požadují LTV max. 80–90 %. Pod 80 % LTV dostaneš zpravidla nižší sazbu.
+            </p>
+            <p>
+              <span class="text-text-primary font-semibold">Přeplatek</span> — celková suma úroků zaplacených bance
+              po celou dobu hypotéky. Čím kratší splatnost nebo nižší sazba, tím nižší přeplatek.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Amortization table -->
+      <div class="mt-12">
+        <h2 class="font-display text-2xl font-bold text-text-primary mb-5">Splátkový kalendář po letech</h2>
+        <div class="bg-card border border-border rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-border bg-surface">
+                  <th class="text-left py-3 px-4 text-text-secondary font-medium text-xs uppercase tracking-wider">Rok</th>
+                  <th class="text-right py-3 px-4 text-text-secondary font-medium text-xs uppercase tracking-wider">Počáteční zůstatek</th>
+                  <th class="text-right py-3 px-4 text-text-secondary font-medium text-xs uppercase tracking-wider">Úroky za rok</th>
+                  <th class="text-right py-3 px-4 text-text-secondary font-medium text-xs uppercase tracking-wider">Jistina za rok</th>
+                  <th class="text-right py-3 px-4 text-text-secondary font-medium text-xs uppercase tracking-wider">Koncový zůstatek</th>
+                </tr>
+              </thead>
+              <tbody id="amort-body" class="divide-y divide-border">
+                <!-- Filled by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-16 border-t border-border mt-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="text-4xl mb-4">🏠</div>
+      <h2 class="font-display text-3xl font-bold text-text-primary mb-3">
+        Chceš vědět víc o hypotékách?
+      </h2>
+      <p class="text-text-secondary mb-6">
+        Přečti si naše průvodce — jak vybrat hypotéku, co je fixace a kdy refinancovat.
+      </p>
+      <a href="/clanky" class="btn-gold px-8 py-4 text-base">
+        Přečíst finanční články →
+      </a>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  .calc-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    background: #2a2a2a;
+  }
+  .calc-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #D4AF37;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.5);
+    border: 3px solid #0a0a0a;
+    transition: box-shadow 0.2s;
+  }
+  .calc-slider::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.7);
+  }
+  .calc-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #D4AF37;
+    cursor: pointer;
+    border: 3px solid #0a0a0a;
+  }
+  #amort-body tr:nth-child(even) {
+    background: rgba(255,255,255,0.015);
+  }
+  #amort-body tr:hover {
+    background: rgba(212,175,55,0.04);
+  }
+  #amort-body tr:last-child td {
+    color: #D4AF37;
+    font-weight: 600;
+  }
+</style>
+
+<script>
+  const fmtKc = (n: number) =>
+    new Intl.NumberFormat('cs-CZ', { maximumFractionDigits: 0 }).format(Math.round(n)) + ' Kč';
+  const fmtPct = (n: number) =>
+    new Intl.NumberFormat('cs-CZ', { maximumFractionDigits: 1 }).format(n) + ' %';
+
+  function updateSlider(el: HTMLInputElement) {
+    const min = +el.min, max = +el.max, val = +el.value;
+    const pct = ((val - min) / (max - min)) * 100;
+    el.style.background = `linear-gradient(to right, #D4AF37 ${pct}%, #2a2a2a ${pct}%)`;
+  }
+
+  function calculate() {
+    const cena   = +(<HTMLInputElement>document.getElementById('cena')).value;
+    const vlastni = Math.min(+(<HTMLInputElement>document.getElementById('vlastni')).value, cena);
+    const sazba  = +(<HTMLInputElement>document.getElementById('sazba')).value;
+    const roky   = +(<HTMLInputElement>document.getElementById('roky')).value;
+
+    const uver = Math.max(0, cena - vlastni);
+    const ltv  = cena > 0 ? (uver / cena) * 100 : 0;
+    const vlastniPct = 100 - ltv;
+
+    const i = (sazba / 100) / 12;
+    const n = roky * 12;
+
+    let splatka = 0;
+    if (uver > 0) {
+      if (i === 0) {
+        splatka = uver / n;
+      } else {
+        const pow = Math.pow(1 + i, n);
+        splatka = uver * i * pow / (pow - 1);
+      }
+    }
+
+    const celkem   = splatka * n;
+    const preplatek = celkem - uver;
+
+    // Update DOM
+    document.getElementById('result-splatka')!.textContent  = fmtKc(splatka);
+    document.getElementById('result-uver')!.textContent     = fmtKc(uver);
+    document.getElementById('result-ltv')!.textContent      = fmtPct(ltv);
+    document.getElementById('result-celkem')!.textContent   = fmtKc(celkem);
+    document.getElementById('result-preplatek')!.textContent = fmtKc(Math.max(0, preplatek));
+
+    (<HTMLElement>document.getElementById('bar-vlastni')).style.width = `${vlastniPct}%`;
+    (<HTMLElement>document.getElementById('bar-uver')).style.width    = `${ltv}%`;
+    document.getElementById('bar-vlastni-pct')!.textContent = fmtPct(vlastniPct);
+    document.getElementById('bar-uver-pct')!.textContent    = fmtPct(ltv);
+
+    buildAmortTable(uver, i, splatka, roky);
+  }
+
+  function buildAmortTable(uver: number, i: number, splatka: number, roky: number) {
+    let balance = uver;
+    const rows: string[] = [];
+
+    for (let y = 1; y <= roky; y++) {
+      const startBal = balance;
+      let rocniUrok = 0;
+      let rocniJistina = 0;
+
+      for (let m = 0; m < 12; m++) {
+        if (balance < 0.005) break;
+        const urokMes    = balance * i;
+        const jistinaMes = Math.min(splatka - urokMes, balance);
+        rocniUrok    += urokMes;
+        rocniJistina += jistinaMes;
+        balance      -= jistinaMes;
+        if (balance < 0.005) balance = 0;
+      }
+
+      const endBal = Math.max(0, balance);
+      rows.push(`
+        <tr>
+          <td class="py-2.5 px-4 text-text-secondary font-medium">${y}</td>
+          <td class="py-2.5 px-4 text-right tabular-nums">${fmtKc(startBal)}</td>
+          <td class="py-2.5 px-4 text-right tabular-nums text-[#4ade80]/80">${fmtKc(rocniUrok)}</td>
+          <td class="py-2.5 px-4 text-right tabular-nums">${fmtKc(rocniJistina)}</td>
+          <td class="py-2.5 px-4 text-right tabular-nums">${fmtKc(endBal)}</td>
+        </tr>
+      `);
+    }
+
+    document.getElementById('amort-body')!.innerHTML = rows.join('');
+  }
+
+  // Slider wiring
+  const sliders = document.querySelectorAll<HTMLInputElement>('.calc-slider');
+  const labelMap: Record<string, { id: string; format: 'kc' | 'pct' | 'roky' }> = {
+    cena:   { id: 'val-cena',   format: 'kc' },
+    vlastni:{ id: 'val-vlastni',format: 'kc' },
+    sazba:  { id: 'val-sazba',  format: 'pct' },
+    roky:   { id: 'val-roky',   format: 'roky' },
+  };
+
+  sliders.forEach(slider => {
+    updateSlider(slider);
+    slider.addEventListener('input', () => {
+      updateSlider(slider);
+      const cfg = labelMap[slider.id];
+      if (cfg) {
+        const val = +slider.value;
+        const el  = document.getElementById(cfg.id)!;
+        if (cfg.format === 'kc') {
+          el.textContent = new Intl.NumberFormat('cs-CZ').format(val);
+        } else if (cfg.format === 'pct') {
+          el.textContent = (val % 1 === 0 ? String(val) : val.toFixed(1)).replace('.', ',');
+        } else {
+          el.textContent = String(val);
+        }
+      }
+      calculate();
+    });
+  });
+
+  calculate();
+</script>
