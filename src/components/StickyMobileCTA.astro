@@ -1,0 +1,51 @@
+---
+// Sticky lišta dole — pouze na mobilu
+---
+
+<div id="sticky-cta" class="fixed bottom-0 left-0 right-0 z-[150] md:hidden transform translate-y-full transition-transform duration-500">
+  <div class="bg-surface/95 backdrop-blur border-t border-border px-4 py-3 flex items-center gap-3 shadow-[0_-8px_30px_rgba(0,0,0,0.5)]">
+    <div class="flex-1 min-w-0">
+      <p class="text-text-primary text-sm font-semibold truncate">📘 5 chyb investorů — zdarma</p>
+      <p class="text-text-secondary text-xs">Stáhni průvodce hned teď</p>
+    </div>
+    <button
+      type="button"
+      id="sticky-cta-btn"
+      class="btn-gold px-4 py-2.5 text-sm font-bold flex-shrink-0"
+    >
+      Chci průvodce →
+    </button>
+    <button id="sticky-cta-close" class="text-text-secondary hover:text-text-primary p-1 flex-shrink-0" aria-label="Zavřít">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  const bar = document.getElementById('sticky-cta')!;
+  const btn = document.getElementById('sticky-cta-btn')!;
+  const closeBtn = document.getElementById('sticky-cta-close')!;
+
+  // Show after 3 seconds if not already captured
+  setTimeout(() => {
+    if (!localStorage.getItem('leadCaptured') && !localStorage.getItem('stickyCTAClosed')) {
+      bar.classList.remove('translate-y-full');
+    }
+  }, 3000);
+
+  btn.addEventListener('click', () => {
+    (window as any).openLeadMagnet?.();
+  });
+
+  closeBtn.addEventListener('click', () => {
+    bar.classList.add('translate-y-full');
+    localStorage.setItem('stickyCTAClosed', '1');
+  });
+
+  // Hide if lead captured
+  if (localStorage.getItem('leadCaptured')) {
+    bar.remove();
+  }
+</script>

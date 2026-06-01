@@ -1,0 +1,832 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Živé trhy"
+  description="Aktuální ceny kryptoměn a akcií — Bitcoin, Ethereum, Apple, NVIDIA a desítky dalších. Data v reálném čase z CoinGecko a Yahoo Finance."
+>
+
+  <!-- ── Header ─────────────────────────────────────────────────────── -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="relative flex h-2.5 w-2.5">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-green"></span>
+      </span>
+      <span class="text-xs font-semibold uppercase tracking-widest text-gold-primary">Live Data</span>
+    </div>
+    <h1 class="font-display text-5xl sm:text-6xl font-bold text-text-primary mb-4">Živé trhy</h1>
+    <p class="text-text-secondary text-xl max-w-2xl mb-6">
+      Aktuální ceny kryptoměn a akcií — data přímo z trhů, každých 90 sekund.
+    </p>
+    <div class="flex items-center gap-4 flex-wrap">
+      <div class="flex items-center gap-2 text-text-secondary text-sm">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-60"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-accent-green"></span>
+        </span>
+        <span id="last-updated">Načítám data…</span>
+      </div>
+      <button
+        id="refresh-btn"
+        class="flex items-center gap-2 text-sm text-text-secondary hover:text-gold-primary border border-border hover:border-gold-primary/40 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        <svg id="refresh-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Obnovit
+      </button>
+      <span id="cd-wrap" class="text-xs hidden" style="color:#A0A0A0;opacity:.6">
+        Auto-refresh za <span id="countdown">90</span>s
+      </span>
+    </div>
+  </div>
+
+  <!-- ══ SEKCE 1: KRYPTOMĚNY ══════════════════════════════════════════ -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="text-3xl">₿</span>
+      <div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <h2 class="font-display text-3xl font-bold text-text-primary">Kryptoměny</h2>
+          <span class="type-badge type-badge--crypto">KRYPTO</span>
+        </div>
+        <p class="text-text-secondary text-xs mt-0.5">Top 100 dle tržní kapitalizace · Zdroj: CoinGecko</p>
+      </div>
+    </div>
+
+    <!-- Skeleton loader -->
+    <div id="crypto-skel" class="bg-card border border-border rounded-xl overflow-hidden">
+      {Array.from({length: 8}).map(() => (
+        <div class="flex items-center gap-4 px-4 sm:px-6 py-3.5 border-b border-border last:border-0">
+          <div class="w-6 h-3.5 bg-surface rounded animate-pulse flex-shrink-0" />
+          <div class="w-9 h-9 rounded-full bg-surface animate-pulse flex-shrink-0" />
+          <div class="flex-1 space-y-1.5">
+            <div class="h-3.5 bg-surface rounded animate-pulse" style="max-width:100px" />
+            <div class="h-2.5 bg-surface rounded animate-pulse" style="max-width:40px" />
+          </div>
+          <div class="w-24 h-4 bg-surface rounded animate-pulse flex-shrink-0" />
+          <div class="w-14 h-4 bg-surface rounded animate-pulse flex-shrink-0 hidden sm:block" />
+          <div class="w-24 h-4 bg-surface rounded animate-pulse flex-shrink-0 hidden lg:block" />
+          <div class="h-7 bg-surface rounded animate-pulse flex-shrink-0 hidden lg:block" style="width:82px" />
+        </div>
+      ))}
+    </div>
+
+    <!-- Table (filled by JS) -->
+    <div id="crypto-table" class="hidden trhy-scroll rounded-xl border border-border" style="max-height:594px;overflow-y:scroll;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#383838 transparent"></div>
+
+    <!-- Error state -->
+    <div id="crypto-err" class="hidden bg-card border border-border rounded-xl p-10 text-center">
+      <p class="text-4xl mb-3">⚠️</p>
+      <p class="text-text-primary font-semibold mb-2">Nepodařilo se načíst kryptodata</p>
+      <p class="text-text-secondary text-sm mb-5">CoinGecko API je momentálně nedostupné nebo byl překročen limit požadavků.</p>
+      <button id="retry-crypto" class="btn-outline px-5 py-2 text-sm">Zkusit znovu</button>
+    </div>
+  </section>
+
+  <!-- ══ SEKCE 2: AKCIE ══════════════════════════════════════════════ -->
+  <section class="bg-surface border-t border-border py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="text-3xl">📈</span>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h2 class="font-display text-3xl font-bold text-text-primary">Akcie</h2>
+            <span class="type-badge type-badge--stock">AKCIE</span>
+          </div>
+          <p class="text-text-secondary text-xs mt-0.5">Top americké společnosti · Zdroj: Yahoo Finance</p>
+        </div>
+      </div>
+
+      <!-- Skeleton loader -->
+      <div id="stocks-skel" class="bg-card border border-border rounded-xl overflow-hidden">
+        {Array.from({length: 6}).map(() => (
+          <div class="flex items-center gap-4 px-4 sm:px-6 py-3.5 border-b border-border last:border-0">
+            <div class="w-10 h-10 rounded-xl bg-surface animate-pulse flex-shrink-0" />
+            <div class="flex-1 space-y-1.5">
+              <div class="h-3.5 bg-surface rounded animate-pulse" style="max-width:140px" />
+              <div class="h-2.5 bg-surface rounded animate-pulse" style="max-width:50px" />
+            </div>
+            <div class="w-24 h-4 bg-surface rounded animate-pulse flex-shrink-0" />
+            <div class="w-20 h-4 bg-surface rounded animate-pulse flex-shrink-0 hidden sm:block" />
+          </div>
+        ))}
+      </div>
+
+      <!-- Table (filled by JS) -->
+      <div id="stocks-table" class="hidden trhy-scroll rounded-xl border border-border" style="max-height:654px;overflow-y:scroll;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#383838 transparent"></div>
+
+      <!-- Error state -->
+      <div id="stocks-err" class="hidden bg-card border border-border rounded-xl p-10 text-center">
+        <p class="text-4xl mb-3">⚠️</p>
+        <p class="text-text-primary font-semibold mb-2">Nepodařilo se načíst data akcií</p>
+        <p class="text-text-secondary text-sm mb-5">Yahoo Finance API momentálně neodpovídá. Zkuste to znovu za chvíli.</p>
+        <button id="retry-stocks" class="btn-outline px-5 py-2 text-sm">Zkusit znovu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SEKCE 3: KOMODITY ════════════════════════════════════════════ -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-border">
+    <div class="flex items-start justify-between gap-4 mb-6 flex-wrap">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">⚡</span>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h2 class="font-display text-3xl font-bold text-text-primary">Komodity</h2>
+            <span class="type-badge type-badge--commodity">KOMODITA</span>
+          </div>
+          <p class="text-text-secondary text-xs mt-0.5">Futures trhy · Zdroj: Yahoo Finance</p>
+        </div>
+      </div>
+      <!-- Dropdown pro výběr komodit (plněn JS) -->
+      <div id="comm-filter-wrap" class="hidden relative mt-1"></div>
+    </div>
+
+    <!-- Skeleton loader -->
+    <div id="comm-skel" class="bg-card border border-border rounded-xl overflow-hidden">
+      {Array.from({length: 6}).map(() => (
+        <div class="flex items-center gap-4 px-4 sm:px-6 py-3.5 border-b border-border last:border-0">
+          <div class="w-6 h-3.5 bg-surface rounded animate-pulse flex-shrink-0" />
+          <div class="flex-1 space-y-1.5">
+            <div class="h-3.5 bg-surface rounded animate-pulse" style="max-width:120px" />
+            <div class="h-2.5 bg-surface rounded animate-pulse" style="max-width:60px" />
+          </div>
+          <div class="w-24 h-4 bg-surface rounded animate-pulse flex-shrink-0" />
+          <div class="w-20 h-4 bg-surface rounded animate-pulse flex-shrink-0 hidden sm:block" />
+        </div>
+      ))}
+    </div>
+
+    <!-- Table (filled by JS) -->
+    <div id="comm-table" class="hidden trhy-scroll rounded-xl border border-border" style="max-height:654px;overflow-y:scroll;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#383838 transparent"></div>
+
+    <!-- Error state -->
+    <div id="comm-err" class="hidden bg-card border border-border rounded-xl p-10 text-center">
+      <p class="text-4xl mb-3">⚠️</p>
+      <p class="text-text-primary font-semibold mb-2">Nepodařilo se načíst data komodit</p>
+      <p class="text-text-secondary text-sm mb-5">Yahoo Finance API je momentálně nedostupné.</p>
+      <button id="retry-comm" class="btn-outline px-5 py-2 text-sm">Zkusit znovu</button>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<!-- ── Styles for JS-generated content ──────────────────────────── -->
+<style is:global>
+  .trhy-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .trhy-row:hover { background: rgba(26, 26, 26, 0.7); }
+  /* Sticky thead */
+  .sticky-thead th { position: sticky; top: 0; z-index: 2; background: #111; }
+  /* Table vertical scrollbar */
+  .trhy-scroll::-webkit-scrollbar { width: 5px; }
+  .trhy-scroll::-webkit-scrollbar-track { background: transparent; }
+  .trhy-scroll::-webkit-scrollbar-thumb { background: #383838; border-radius: 3px; }
+  .trhy-scroll::-webkit-scrollbar-thumb:hover { background: #555; }
+  /* Type badges */
+  .type-badge { display:inline-flex;align-items:center;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;border-radius:4px;padding:2px 7px;border-width:1px;border-style:solid; }
+  .type-badge--crypto    { background:rgba(99,102,241,.12); color:#818cf8; border-color:rgba(99,102,241,.3); }
+  .type-badge--stock     { background:rgba(34,197,94,.1);  color:#4ade80; border-color:rgba(34,197,94,.3);  }
+  .type-badge--commodity { background:rgba(212,175,55,.12);color:#D4AF37; border-color:rgba(212,175,55,.3); }
+  /* Row inline KOMODITA badge */
+  .badge-komodita { font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:rgba(212,175,55,.1);color:#D4AF37;border-radius:3px;padding:1px 5px;border:1px solid rgba(212,175,55,.22); }
+  /* Commodity dropdown */
+  .comm-dd-item:hover { background: rgba(255,255,255,.04) !important; }
+  #comm-filter-btn:hover { color: #D4AF37 !important; border-color: rgba(212,175,55,.4) !important; }
+  /* Dropdown scrollbar — vždy viditelný, tenký */
+  .comm-scroll { scrollbar-width: thin; scrollbar-color: #383838 transparent; }
+  .comm-scroll::-webkit-scrollbar { width: 5px; }
+  .comm-scroll::-webkit-scrollbar-track { background: transparent; }
+  .comm-scroll::-webkit-scrollbar-thumb { background: #383838; border-radius: 3px; }
+  .comm-scroll::-webkit-scrollbar-thumb:hover { background: #555; }
+</style>
+
+<!-- ── Client-side logic ─────────────────────────────────────────── -->
+<script>
+// ════════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════════
+
+function fmtPrice(n: number): string {
+  if (n >= 10_000) return '$' + n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  if (n >= 1_000)  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (n >= 100)    return '$' + n.toFixed(2);
+  if (n >= 1)      return '$' + n.toFixed(4);
+  if (n >= 0.0001) return '$' + n.toFixed(6);
+  return '$' + n.toFixed(8);
+}
+
+function fmtMcap(n: number): string {
+  if (!n) return '—';
+  if (n >= 1e12) return '$' + (n / 1e12).toFixed(2) + 'T';
+  if (n >= 1e9)  return '$' + (n / 1e9).toFixed(1)  + 'B';
+  if (n >= 1e6)  return '$' + (n / 1e6).toFixed(1)  + 'M';
+  return '$' + n.toLocaleString('en-US');
+}
+
+function pctColor(v: number) { return v >= 0 ? '#22c55e' : '#f87171'; }
+function pctStr(v: number)   { return (v >= 0 ? '+' : '') + v.toFixed(2) + '%'; }
+
+/** Build inline SVG sparkline from price array */
+function sparkSVG(prices: number[], positive: boolean): string {
+  if (!prices?.length || prices.length < 2) return '';
+  // Downsample to ≤40 points for clean render
+  const step   = Math.max(1, Math.floor(prices.length / 40));
+  const pts    = prices.filter((_, i) => i % step === 0);
+  const W = 82, H = 28, P = 2;
+  const lo     = Math.min(...pts);
+  const hi     = Math.max(...pts);
+  const rng    = hi - lo || 1;
+  const coords = pts.map((p, i) => {
+    const x = +(P + (i / (pts.length - 1)) * (W - 2 * P)).toFixed(1);
+    const y = +((H - P) - ((p - lo) / rng) * (H - 2 * P)).toFixed(1);
+    return `${x},${y}`;
+  }).join(' ');
+  const col = positive ? '#22c55e' : '#f87171';
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none" xmlns="http://www.w3.org/2000/svg">` +
+    `<polyline points="${coords}" stroke="${col}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>` +
+    `</svg>`;
+}
+
+// ════════════════════════════════════════════════════════════════
+// RESPONSIVE COLUMN VISIBILITY
+// .col-md → visible on md (768px+)
+// .col-lg → visible on lg (1024px+)
+// ════════════════════════════════════════════════════════════════
+function applyColVis() {
+  const isMd = window.innerWidth >= 768;
+  const isLg = window.innerWidth >= 1024;
+  document.querySelectorAll<HTMLElement>('.col-md').forEach(el => {
+    el.style.display = isMd ? 'table-cell' : 'none';
+  });
+  document.querySelectorAll<HTMLElement>('.col-lg').forEach(el => {
+    el.style.display = isLg ? 'table-cell' : 'none';
+  });
+}
+window.addEventListener('resize', applyColVis, { passive: true });
+
+// ════════════════════════════════════════════════════════════════
+// CRYPTO — CoinGecko
+// ════════════════════════════════════════════════════════════════
+
+async function loadCrypto(silent = false) {
+  const skel  = document.getElementById('crypto-skel')!;
+  const table = document.getElementById('crypto-table')!;
+  const errEl = document.getElementById('crypto-err')!;
+
+  if (!silent) {
+    skel.classList.remove('hidden');
+    table.classList.add('hidden');
+    errEl.classList.add('hidden');
+  }
+
+  try {
+    const res = await fetch(
+      'https://api.coingecko.com/api/v3/coins/markets' +
+      '?vs_currency=usd&order=market_cap_desc&per_page=100&page=1' +
+      '&sparkline=true&price_change_percentage=24h,7d,30d,1y',
+      { signal: AbortSignal.timeout(12_000) }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const coins: any[] = await res.json();
+
+    // ── 52W high/low z Yahoo Finance (server proxy) ──
+    // CoinGecko symbol "btc" → Yahoo Finance "BTC-USD"
+    const yfSymStr = coins.map((c: any) => `${(c.symbol as string).toUpperCase()}-USD`).join(',');
+    let w52Map: Record<string, { w52High: number | null; w52Low: number | null }> = {};
+    try {
+      const w52Res = await fetch(
+        `/api/crypto-52w.json?symbols=${encodeURIComponent(yfSymStr)}`,
+        { signal: AbortSignal.timeout(20_000) }
+      );
+      if (w52Res.ok) w52Map = (await w52Res.json()).data ?? {};
+    } catch { /* 52W data nepovinná, neblokuje render */ }
+
+    // ── Build table HTML ──
+    const TH_S ='padding:.65rem 1rem;text-align:right;color:#A0A0A0;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em';
+    let html = `<table class="w-full bg-card" style="min-width:520px;border-collapse:collapse">`;
+    html += `<thead class="sticky-thead"><tr style="border-bottom:1px solid #2a2a2a">
+      <th style="padding:.65rem .5rem .65rem 1rem;width:38px;color:#A0A0A0;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;text-align:center">#</th>
+      <th style="padding:.65rem 1rem;text-align:left;color:#A0A0A0;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Název</th>
+      <th class="col-md" style="padding:.65rem 1rem;text-align:center;color:#A0A0A0;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;display:none">Symbol</th>
+      <th class="col-lg" style="${TH_S};display:none">52W MAX</th>
+      <th class="col-lg" style="${TH_S};display:none">52W MIN</th>
+      <th style="${TH_S}">Cena</th>
+      <th style="${TH_S}">24h</th>
+      <th class="col-md" style="${TH_S};display:none">7d</th>
+      <th class="col-md" style="${TH_S};display:none">30d</th>
+      <th class="col-md" style="${TH_S};display:none">1R</th>
+      <th class="col-lg" style="${TH_S};display:none">Market Cap</th>
+      <th class="col-lg" style="padding:.65rem 1rem .65rem 1.25rem;text-align:right;color:#A0A0A0;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;display:none">7 dní</th>
+    </tr></thead><tbody>`;
+
+    const fmtChg = (v: number | null) => v == null
+      ? '<span style="color:#333">—</span>'
+      : `<span style="color:${pctColor(v)};font-size:.85rem;font-weight:600">${pctStr(v)}</span>`;
+
+    for (const c of coins) {
+      const pct24h  = c.price_change_percentage_24h              ?? 0;
+      const pct7d   = c.price_change_percentage_7d_in_currency  ?? null;
+      const pct30d  = c.price_change_percentage_30d_in_currency ?? null;
+      const pct1y   = c.price_change_percentage_1y_in_currency  ?? null;
+      const col24   = pctColor(pct24h);
+      const spark   = sparkSVG(c.sparkline_in_7d?.price ?? [], pct7d != null ? pct7d >= 0 : pct24h >= 0);
+      const safeImg = c.image.replace(/'/g, '%27');
+      const yfSym   = `${(c.symbol as string).toUpperCase()}-USD`;
+      const w52h    = w52Map[yfSym]?.w52High ?? null;
+      const w52l    = w52Map[yfSym]?.w52Low  ?? null;
+
+      html += `<tr class="trhy-row" style="border-bottom:1px solid #2a2a2a">
+        <td style="padding:.75rem .5rem .75rem 1rem;text-align:center;color:#A0A0A0;font-size:.78rem;width:38px">${c.market_cap_rank}</td>
+        <td style="padding:.75rem 1rem">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0">
+            <img src="${safeImg}" alt="${c.name}" width="32" height="32"
+              style="border-radius:50%;flex-shrink:0;background:#2a2a2a"
+              loading="lazy"
+              onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%23D4AF37%22/%3E%3Ctext x=%2216%22 y=%2220%22 text-anchor=%22middle%22 fill=%22%230a0a0a%22 font-size=%2212%22 font-weight=%22bold%22%3E${c.symbol.slice(0,2).toUpperCase()}%3C/text%3E%3C/svg%3E'">
+            <div style="min-width:0">
+              <div style="font-weight:600;font-size:.85rem;color:#F5F5F5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px">${c.name}</div>
+              <div style="font-size:.7rem;color:#A0A0A0;text-transform:uppercase;margin-top:1px">${c.symbol}</div>
+            </div>
+          </div>
+        </td>
+        <td class="col-md" style="padding:.75rem 1rem;text-align:center;display:none;vertical-align:middle">
+          <span style="font-size:.7rem;font-weight:700;background:#1a1a1a;border:1px solid #2a2a2a;color:#A0A0A0;border-radius:4px;padding:2px 8px;white-space:nowrap;text-transform:uppercase">${c.symbol}</span>
+        </td>
+        <td class="col-lg" style="padding:.75rem 1rem;text-align:right;display:none;vertical-align:middle">
+          ${w52h != null ? `<div style="font-size:.82rem;font-weight:600;color:#22c55e;white-space:nowrap">${fmtPrice(w52h)}</div>` : '<span style="color:#333;font-size:.8rem">—</span>'}
+        </td>
+        <td class="col-lg" style="padding:.75rem 1rem;text-align:right;display:none;vertical-align:middle">
+          ${w52l != null ? `<div style="font-size:.82rem;font-weight:600;color:#f87171;white-space:nowrap">${fmtPrice(w52l)}</div>` : '<span style="color:#333;font-size:.8rem">—</span>'}
+        </td>
+        <td style="padding:.75rem 1rem;text-align:right;font-size:.88rem;font-weight:600;color:#F5F5F5;white-space:nowrap">${fmtPrice(c.current_price)}</td>
+        <td style="padding:.75rem 1rem;text-align:right;font-size:.85rem;font-weight:600;color:${col24};white-space:nowrap">${pctStr(pct24h)}</td>
+        <td class="col-md" style="padding:.75rem 1rem;text-align:right;white-space:nowrap;display:none">${fmtChg(pct7d)}</td>
+        <td class="col-md" style="padding:.75rem 1rem;text-align:right;white-space:nowrap;display:none">${fmtChg(pct30d)}</td>
+        <td class="col-md" style="padding:.75rem 1rem;text-align:right;white-space:nowrap;display:none">${fmtChg(pct1y)}</td>
+        <td class="col-lg" style="padding:.75rem 1rem;text-align:right;font-size:.82rem;color:#A0A0A0;white-space:nowrap;display:none">${fmtMcap(c.market_cap)}</td>
+        <td class="col-lg" style="padding:.75rem 1rem .75rem 1.25rem;text-align:right;display:none;vertical-align:middle">${spark}</td>
+      </tr>`;
+    }
+    html += `</tbody></table>`;
+
+    skel.classList.add('hidden');
+    table.innerHTML = html;
+    table.classList.remove('hidden');
+    applyColVis();
+  } catch (e) {
+    console.error('CoinGecko error:', e);
+    if (!silent) {
+      skel.classList.add('hidden');
+      errEl.classList.remove('hidden');
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// STOCKS — Yahoo Finance
+// ════════════════════════════════════════════════════════════════
+
+interface StockQ {
+  rank:         number;
+  symbol:       string;
+  name:         string;
+  peRatio:      number | null;
+  dividendPct:  number | null;
+  w52High:      number | null;
+  w52Low:       number | null;
+  price:        number;
+  change:       number;
+  changePct:    number;
+  m7ChangePct:  number | null;
+  m30ChangePct: number | null;
+  w52ChangePct: number | null;
+  logoUrl:      string;
+  domain:       string;
+}
+
+/** Fetch stocks via our server-side proxy — bypasses CORS */
+async function loadStocks(silent = false) {
+  const skel  = document.getElementById('stocks-skel')!;
+  const table = document.getElementById('stocks-table')!;
+  const errEl = document.getElementById('stocks-err')!;
+
+  if (!silent) {
+    skel.classList.remove('hidden');
+    table.classList.add('hidden');
+    errEl.classList.add('hidden');
+  }
+
+  let stocks: StockQ[] = [];
+
+  try {
+    const res = await fetch('/api/stocks.json', { signal: AbortSignal.timeout(40_000) });
+    if (!res.ok) throw new Error('API ' + res.status);
+    const data = await res.json();
+    stocks = data.stocks ?? [];
+  } catch { /* fall through to error state */ }
+
+  if (stocks.length === 0) {
+    if (!silent) { skel.classList.add('hidden'); errEl.classList.remove('hidden'); }
+    return;
+  }
+
+  // ── Build table HTML ──
+  const TH_ST = 'color:#A0A0A0;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em';
+  let html = `<table class="w-full bg-card" style="min-width:520px;border-collapse:collapse">`;
+  html += `<thead class="sticky-thead"><tr style="border-bottom:1px solid #2a2a2a">
+    <th style="padding:.65rem .5rem .65rem 1rem;width:36px;${TH_ST};text-align:center">#</th>
+    <th style="padding:.65rem 1rem;width:58px;${TH_ST}">Logo</th>
+    <th style="padding:.65rem 1rem;text-align:left;${TH_ST}">Společnost</th>
+    <th class="col-md" style="padding:.65rem 1rem;text-align:center;${TH_ST};display:none">Symbol</th>
+    <th class="col-lg" style="padding:.65rem 1rem;text-align:right;${TH_ST};display:none">P/E</th>
+    <th class="col-lg" style="padding:.65rem 1rem;text-align:right;${TH_ST};display:none">Div %</th>
+    <th class="col-lg" style="padding:.65rem 1rem;text-align:right;${TH_ST};display:none">52W MAX</th>
+    <th class="col-lg" style="padding:.65rem 1rem;text-align:right;${TH_ST};display:none">52W MIN</th>
+    <th style="padding:.65rem 1rem;text-align:right;${TH_ST}">Cena</th>
+    <th style="padding:.65rem 1rem;text-align:right;${TH_ST}">24h</th>
+    <th class="col-md" style="padding:.65rem 1rem;text-align:right;${TH_ST};display:none">7d</th>
+    <th class="col-md" style="padding:.65rem 1rem;text-align:right;${TH_ST};display:none">30d</th>
+    <th class="col-md" style="padding:.65rem 1.25rem .65rem 1rem;text-align:right;${TH_ST};display:none">1R</th>
+  </tr></thead><tbody>`;
+
+  for (const s of stocks) {
+    const col  = pctColor(s.changePct);
+    const init = s.symbol.replace('-', '').slice(0, 3);
+    const gFav = `https://www.google.com/s2/favicons?domain=${s.domain}&sz=64`;
+
+    html += `<tr class="trhy-row" style="border-bottom:1px solid #2a2a2a">
+      <td style="padding:.75rem .5rem .75rem 1rem;width:36px;text-align:center;color:#A0A0A0;font-size:.8rem;font-weight:600;vertical-align:middle">${s.rank}</td>
+      <td style="padding:.75rem 1rem;width:58px;vertical-align:middle">
+        <div style="width:38px;height:38px;border-radius:8px;background:#111;border:1px solid #2a2a2a;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative">
+          <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#D4AF37;z-index:0">${init}</span>
+          <img src="${s.logoUrl}" alt="${s.name}" width="26" height="26"
+            style="object-fit:contain;position:relative;z-index:1" loading="lazy"
+            onerror="if(this.dataset.fb){this.style.display='none'}else{this.dataset.fb=1;this.src='${gFav}'}">
+        </div>
+      </td>
+      <td style="padding:.75rem 1rem;vertical-align:middle">
+        <div style="font-weight:600;font-size:.85rem;color:#F5F5F5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px">${s.name}</div>
+      </td>
+      <td class="col-md" style="padding:.75rem 1rem;text-align:center;display:none;vertical-align:middle">
+        <span style="font-size:.7rem;font-weight:700;background:#1a1a1a;border:1px solid #2a2a2a;color:#A0A0A0;border-radius:4px;padding:2px 8px;white-space:nowrap">${s.symbol}</span>
+      </td>
+      <td class="col-lg" style="padding:.75rem 1rem;text-align:right;display:none;vertical-align:middle">
+        ${s.peRatio != null ? `<div style="font-size:.82rem;font-weight:600;color:#E0C97F;white-space:nowrap">${s.peRatio.toFixed(1)}×</div>` : '<span style="color:#333;font-size:.8rem">—</span>'}
+      </td>
+      <td class="col-lg" style="padding:.75rem 1rem;text-align:right;display:none;vertical-align:middle">
+        ${s.dividendPct != null ? `<div style="font-size:.82rem;font-weight:600;color:#60a5fa;white-space:nowrap">${s.dividendPct.toFixed(2)}%</div>` : '<span style="color:#333;font-size:.8rem">—</span>'}
+      </td>
+      <td class="col-lg" style="padding:.75rem 1rem;text-align:right;display:none;vertical-align:middle">
+        ${s.w52High != null ? `<div style="font-size:.82rem;font-weight:600;color:#22c55e;white-space:nowrap">${fmtPrice(s.w52High)}</div>` : '<span style="color:#333;font-size:.8rem">—</span>'}
+      </td>
+      <td class="col-lg" style="padding:.75rem 1rem;text-align:right;display:none;vertical-align:middle">
+        ${s.w52Low != null ? `<div style="font-size:.82rem;font-weight:600;color:#f87171;white-space:nowrap">${fmtPrice(s.w52Low)}</div>` : '<span style="color:#333;font-size:.8rem">—</span>'}
+      </td>
+      <td style="padding:.75rem 1rem;text-align:right;font-size:.88rem;font-weight:600;color:#F5F5F5;white-space:nowrap;vertical-align:middle">${fmtPrice(s.price)}</td>
+      <td style="padding:.75rem 1rem;text-align:right;vertical-align:middle">
+        <div style="font-size:.88rem;font-weight:600;color:${col};white-space:nowrap">${pctStr(s.changePct)}</div>
+        <div style="font-size:.72rem;color:#A0A0A0;margin-top:1px">${s.change >= 0 ? '+' : ''}${s.change.toFixed(2)}</div>
+      </td>
+      <td class="col-md" style="padding:.75rem 1rem;text-align:right;display:none;vertical-align:middle">
+        ${s.m7ChangePct != null
+          ? `<div style="font-size:.85rem;font-weight:600;color:${pctColor(s.m7ChangePct)};white-space:nowrap">${pctStr(s.m7ChangePct)}</div>`
+          : '<span style="color:#333;font-size:.8rem">—</span>'}
+      </td>
+      <td class="col-md" style="padding:.75rem 1rem;text-align:right;display:none;vertical-align:middle">
+        ${s.m30ChangePct != null
+          ? `<div style="font-size:.85rem;font-weight:600;color:${pctColor(s.m30ChangePct)};white-space:nowrap">${pctStr(s.m30ChangePct)}</div>`
+          : '<span style="color:#333;font-size:.8rem">—</span>'}
+      </td>
+      <td class="col-md" style="padding:.75rem 1.25rem .75rem 1rem;text-align:right;display:none;vertical-align:middle">
+        ${s.w52ChangePct != null
+          ? `<div style="font-size:.85rem;font-weight:600;color:${pctColor(s.w52ChangePct)};white-space:nowrap">${pctStr(s.w52ChangePct)}</div>`
+          : '<span style="color:#333;font-size:.8rem">—</span>'}
+      </td>
+    </tr>`;
+  }
+  html += `</tbody></table>`;
+
+  skel.classList.add('hidden');
+  table.innerHTML = html;
+  table.classList.remove('hidden');
+  applyColVis();
+}
+
+// ════════════════════════════════════════════════════════════════
+// KOMODITY — Yahoo Finance futures
+// ════════════════════════════════════════════════════════════════
+
+interface CommodityQ {
+  rank:         number;
+  symbol:       string;
+  name:         string;
+  fullName:     string;
+  unit:         string;
+  w52High:      number | null;
+  w52Low:       number | null;
+  price:        number;
+  change:       number;
+  changePct:    number;
+  m7ChangePct:  number | null;
+  m30ChangePct: number | null;
+  w52ChangePct: number | null;
+}
+
+let allCommodities: CommodityQ[] = [];
+let selectedComms  = new Set<string>();
+
+async function loadCommodities(silent = false) {
+  const skel  = document.getElementById('comm-skel')!;
+  const table = document.getElementById('comm-table')!;
+  const errEl = document.getElementById('comm-err')!;
+
+  if (!silent) {
+    skel.classList.remove('hidden');
+    table.classList.add('hidden');
+    errEl.classList.add('hidden');
+  }
+
+  try {
+    const res = await fetch('/api/commodities.json', { signal: AbortSignal.timeout(40_000) });
+    if (!res.ok) throw new Error('API ' + res.status);
+    const data = await res.json();
+    allCommodities = data.commodities ?? [];
+  } catch (e) {
+    console.error('Commodities error:', e);
+    if (!silent) { document.getElementById('comm-skel')!.classList.add('hidden'); errEl.classList.remove('hidden'); }
+    return;
+  }
+
+  // Při prvním načtení vyber vše
+  if (selectedComms.size === 0) {
+    allCommodities.forEach(c => selectedComms.add(c.symbol));
+  }
+
+  renderCommTable(silent);
+  renderCommDropdown();
+}
+
+// ── Ikony komodit: emoji + barva pozadí kontejneru ───────────────────────
+const COMM_ICONS: Record<string, { emoji: string; bg: string; border: string }> = {
+  'GC=F':  { emoji: '🥇', bg: 'rgba(212,175,55,.18)',  border: 'rgba(212,175,55,.4)'  },
+  'SI=F':  { emoji: '🥈', bg: 'rgba(192,192,192,.14)', border: 'rgba(192,192,192,.35)' },
+  'PL=F':  { emoji: '💎', bg: 'rgba(147,197,253,.12)', border: 'rgba(147,197,253,.3)'  },
+  'PA=F':  { emoji: '🪙', bg: 'rgba(160,170,190,.12)', border: 'rgba(160,170,190,.3)'  },
+  'HG=F':  { emoji: '🔶', bg: 'rgba(184,115,51,.18)',  border: 'rgba(184,115,51,.4)'  },
+  'CL=F':  { emoji: '🛢️', bg: 'rgba(60,60,70,.6)',    border: '#333'                  },
+  'BZ=F':  { emoji: '🛢️', bg: 'rgba(80,55,40,.5)',    border: '#3a2a1a'               },
+  'NG=F':  { emoji: '🔥', bg: 'rgba(255,100,50,.14)', border: 'rgba(255,100,50,.35)' },
+  'RB=F':  { emoji: '⛽', bg: 'rgba(255,160,50,.12)', border: 'rgba(255,160,50,.3)'  },
+  'UX=F':  { emoji: '☢️', bg: 'rgba(100,220,100,.1)', border: 'rgba(100,220,100,.28)' },
+  'ZW=F':  { emoji: '🌾', bg: 'rgba(200,170,60,.14)', border: 'rgba(200,170,60,.32)' },
+  'ZC=F':  { emoji: '🌽', bg: 'rgba(255,200,40,.12)', border: 'rgba(255,200,40,.3)'  },
+  'ZS=F':  { emoji: '🫘', bg: 'rgba(100,160,80,.14)', border: 'rgba(100,160,80,.32)' },
+  'CC=F':  { emoji: '🍫', bg: 'rgba(120,70,40,.25)',  border: 'rgba(150,90,60,.45)' },
+  'KC=F':  { emoji: '☕', bg: 'rgba(100,60,30,.25)',  border: 'rgba(130,80,50,.45)' },
+  'SB=F':  { emoji: '🍬', bg: 'rgba(230,140,160,.1)', border: 'rgba(230,140,160,.28)' },
+  'CT=F':  { emoji: '🧶', bg: 'rgba(120,170,220,.1)', border: 'rgba(120,170,220,.28)' },
+  'LBS=F': { emoji: '🪵', bg: 'rgba(150,100,55,.2)',  border: 'rgba(150,100,55,.42)' },
+  'HE=F':  { emoji: '🐷', bg: 'rgba(240,150,180,.1)', border: 'rgba(240,150,180,.28)' },
+  'EH=F':  { emoji: '⚗️', bg: 'rgba(100,180,240,.1)', border: 'rgba(100,180,240,.28)' },
+};
+
+function renderCommTable(silent = false) {
+  const skel  = document.getElementById('comm-skel')!;
+  const table = document.getElementById('comm-table')!;
+
+  const rows = allCommodities.filter(c => selectedComms.has(c.symbol));
+
+  const TH_CM = 'color:#A0A0A0;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em';
+  let html = `<table class="w-full bg-card" style="min-width:520px;border-collapse:collapse">`;
+  html += `<thead class="sticky-thead"><tr style="border-bottom:1px solid #2a2a2a">
+    <th style="padding:.65rem .5rem .65rem 1rem;width:36px;text-align:center;${TH_CM}">#</th>
+    <th style="padding:.65rem 1rem;width:58px;${TH_CM}"></th>
+    <th style="padding:.65rem 1rem;text-align:left;${TH_CM}">Komodita</th>
+    <th class="col-md" style="padding:.65rem 1rem;text-align:center;${TH_CM};display:none">Symbol</th>
+    <th class="col-lg" style="padding:.65rem 1rem;text-align:right;${TH_CM};display:none">52W MAX</th>
+    <th class="col-lg" style="padding:.65rem 1rem;text-align:right;${TH_CM};display:none">52W MIN</th>
+    <th style="padding:.65rem 1rem;text-align:right;${TH_CM}">Cena</th>
+    <th style="padding:.65rem 1rem;text-align:right;${TH_CM}">24h</th>
+    <th class="col-md" style="padding:.65rem 1rem;text-align:right;${TH_CM};display:none">7d</th>
+    <th class="col-md" style="padding:.65rem 1rem;text-align:right;${TH_CM};display:none">30d</th>
+    <th class="col-md" style="padding:.65rem 1.25rem .65rem 1rem;text-align:right;${TH_CM};display:none">1R</th>
+  </tr></thead><tbody>`;
+
+  rows.forEach((c, i) => {
+    const col  = pctColor(c.changePct);
+    const icon = COMM_ICONS[c.symbol] ?? { emoji: '📊', bg: '#111', border: '#2a2a2a' };
+
+    html += `<tr class="trhy-row" data-symbol="${c.symbol}" style="border-bottom:1px solid #2a2a2a">
+      <td style="padding:.75rem .5rem .75rem 1rem;width:36px;text-align:center;color:#A0A0A0;font-size:.8rem;font-weight:600;vertical-align:middle">${i + 1}</td>
+      <td style="padding:.75rem 1rem;width:58px;vertical-align:middle">
+        <div style="width:38px;height:38px;border-radius:8px;background:${icon.bg};border:1px solid ${icon.border};display:flex;align-items:center;justify-content:center;font-size:1.3rem;line-height:1">
+          ${icon.emoji}
+        </div>
+      </td>
+      <td style="padding:.75rem 1rem;vertical-align:middle">
+        <div style="font-weight:600;font-size:.85rem;color:#F5F5F5">${c.name}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+          <span style="font-size:.68rem;color:#555">${c.unit}</span>
+          <span class="badge-komodita">KOMODITA</span>
+        </div>
+      </td>
+      <td class="col-md" style="padding:.75rem 1rem;text-align:center;display:none;vertical-align:middle">
+        <span style="font-size:.7rem;font-weight:700;background:#1a1a1a;border:1px solid #2a2a2a;color:#A0A0A0;border-radius:4px;padding:2px 8px;white-space:nowrap">${c.symbol}</span>
+      </td>
+      <td class="col-lg" style="padding:.75rem 1rem;text-align:right;display:none;vertical-align:middle">
+        ${c.w52High != null ? `<div style="font-size:.82rem;font-weight:600;color:#22c55e;white-space:nowrap">${fmtPrice(c.w52High)}</div>` : '<span style="color:#333;font-size:.8rem">—</span>'}
+      </td>
+      <td class="col-lg" style="padding:.75rem 1rem;text-align:right;display:none;vertical-align:middle">
+        ${c.w52Low != null ? `<div style="font-size:.82rem;font-weight:600;color:#f87171;white-space:nowrap">${fmtPrice(c.w52Low)}</div>` : '<span style="color:#333;font-size:.8rem">—</span>'}
+      </td>
+      <td style="padding:.75rem 1rem;text-align:right;font-size:.88rem;font-weight:600;color:#F5F5F5;white-space:nowrap;vertical-align:middle">${fmtPrice(c.price)}</td>
+      <td style="padding:.75rem 1rem;text-align:right;vertical-align:middle">
+        <div style="font-size:.88rem;font-weight:600;color:${col};white-space:nowrap">${pctStr(c.changePct)}</div>
+        <div style="font-size:.72rem;color:#A0A0A0;margin-top:1px">${c.change >= 0 ? '+' : ''}${Math.abs(c.change).toFixed(3)}</div>
+      </td>
+      <td class="col-md" style="padding:.75rem 1rem;text-align:right;display:none;vertical-align:middle">
+        ${c.m7ChangePct != null
+          ? `<div style="font-size:.85rem;font-weight:600;color:${pctColor(c.m7ChangePct)};white-space:nowrap">${pctStr(c.m7ChangePct)}</div>`
+          : '<span style="color:#333;font-size:.8rem">—</span>'}
+      </td>
+      <td class="col-md" style="padding:.75rem 1rem;text-align:right;display:none;vertical-align:middle">
+        ${c.m30ChangePct != null
+          ? `<div style="font-size:.85rem;font-weight:600;color:${pctColor(c.m30ChangePct)};white-space:nowrap">${pctStr(c.m30ChangePct)}</div>`
+          : '<span style="color:#333;font-size:.8rem">—</span>'}
+      </td>
+      <td class="col-md" style="padding:.75rem 1.25rem .75rem 1rem;text-align:right;display:none;vertical-align:middle">
+        ${c.w52ChangePct != null
+          ? `<div style="font-size:.85rem;font-weight:600;color:${pctColor(c.w52ChangePct)};white-space:nowrap">${pctStr(c.w52ChangePct)}</div>`
+          : '<span style="color:#333;font-size:.8rem">—</span>'}
+      </td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+
+  skel.classList.add('hidden');
+  table.innerHTML = html;
+  table.classList.remove('hidden');
+  applyColVis();
+}
+
+let commDropdownOpen = false;
+
+function renderCommDropdown() {
+  const wrap = document.getElementById('comm-filter-wrap');
+  if (!wrap || allCommodities.length === 0) return;
+
+  const sel   = selectedComms.size;
+  const total = allCommodities.length;
+  const allOn = sel === total;
+
+  wrap.classList.remove('hidden');
+  wrap.innerHTML = `
+    <button id="comm-filter-btn"
+      style="display:inline-flex;align-items:center;gap:8px;color:#808080;font-size:.8rem;font-weight:500;
+             padding:8px 14px;border:1px solid #2a2a2a;border-radius:8px;background:#0d0d0d;cursor:pointer;
+             transition:all .15s;white-space:nowrap">
+      <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h18M7 9h10M11 14h2"/>
+      </svg>
+      Vybrat komodity
+      <span style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:99px;padding:1px 8px;
+                   font-size:.72rem;font-weight:700;color:${allOn ? '#555' : '#D4AF37'}">${sel}/${total}</span>
+      <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 9l6 6 6-6"/>
+      </svg>
+    </button>
+    <div id="comm-dd"
+      style="display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:200;
+             background:#0f0f0f;border:1px solid #2a2a2a;border-radius:12px;
+             min-width:230px;box-shadow:0 12px 40px rgba(0,0,0,.7);overflow:hidden;touch-action:pan-y">
+      <div style="padding:8px 14px 9px;border-bottom:1px solid #1e1e1e;
+                  display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:.68rem;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:.06em">Komodity</span>
+        <button id="comm-toggle-all"
+          style="font-size:.75rem;color:#D4AF37;background:none;border:none;cursor:pointer;padding:0">
+          ${allOn ? 'Odznačit vše' : 'Označit vše'}
+        </button>
+      </div>
+      <div class="comm-scroll" style="max-height:310px;overflow-y:scroll;overflow-x:hidden;padding:4px 0;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain">
+        ${allCommodities.map(c => `
+          <label class="comm-dd-item"
+            style="display:flex;align-items:center;gap:10px;padding:7px 14px;cursor:pointer;transition:background .1s;touch-action:pan-y">
+            <input type="checkbox" value="${c.symbol}" ${selectedComms.has(c.symbol) ? 'checked' : ''}
+              style="accent-color:#D4AF37;width:14px;height:14px;cursor:pointer;flex-shrink:0">
+            <span style="font-size:.82rem;color:#C0C0C0;flex:1;white-space:nowrap">${c.name}</span>
+            <span style="font-size:.68rem;color:#404040;font-family:monospace">${c.symbol}</span>
+          </label>`).join('')}
+      </div>
+    </div>`;
+
+  const btn = document.getElementById('comm-filter-btn')!;
+  const dd  = document.getElementById('comm-dd')!;
+
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    commDropdownOpen = !commDropdownOpen;
+    dd.style.display = commDropdownOpen ? 'block' : 'none';
+  });
+
+  dd.addEventListener('click',      e => e.stopPropagation());
+  dd.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+  dd.addEventListener('touchmove',  e => e.stopPropagation(), { passive: true });
+  dd.addEventListener('touchend',   e => e.stopPropagation(), { passive: true });
+
+  document.addEventListener('click', () => {
+    if (commDropdownOpen) { commDropdownOpen = false; dd.style.display = 'none'; }
+  }, { once: false });
+
+  document.getElementById('comm-toggle-all')?.addEventListener('click', () => {
+    if (allOn) {
+      selectedComms.clear();
+      // Ponech aspoň jednu
+      if (allCommodities.length) selectedComms.add(allCommodities[0].symbol);
+    } else {
+      allCommodities.forEach(c => selectedComms.add(c.symbol));
+    }
+    renderCommTable();
+    renderCommDropdown();
+  });
+
+  dd.querySelectorAll<HTMLInputElement>('input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (cb.checked) selectedComms.add(cb.value);
+      else {
+        // Ponech aspoň jednu aktivní
+        if (selectedComms.size > 1) selectedComms.delete(cb.value);
+        else { cb.checked = true; return; }
+      }
+      renderCommTable();
+      // Jen aktualizuj counter badge bez re-renderu celého dropdownu
+      const badge = btn.querySelector('span');
+      if (badge) {
+        const s = selectedComms.size;
+        badge.textContent = `${s}/${total}`;
+        badge.style.color = s < total ? '#D4AF37' : '#555';
+      }
+    });
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// AUTO-REFRESH + COUNTDOWN
+// ════════════════════════════════════════════════════════════════
+
+const REFRESH_S = 90;
+let cdVal    = REFRESH_S;
+let cdTimer: ReturnType<typeof setInterval> | null = null;
+let busy     = false;
+
+function setTimestamp() {
+  const el = document.getElementById('last-updated');
+  if (el) el.textContent = `Aktualizováno: ${new Date().toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+}
+
+function startCountdown() {
+  const wrap = document.getElementById('cd-wrap');
+  const cdEl = document.getElementById('countdown');
+  wrap?.classList.remove('hidden');
+  cdVal = REFRESH_S;
+  if (cdTimer) clearInterval(cdTimer);
+  cdTimer = setInterval(() => {
+    cdVal--;
+    if (cdEl) cdEl.textContent = String(cdVal);
+    if (cdVal <= 0) {
+      if (cdTimer) clearInterval(cdTimer);
+      refresh(true);
+    }
+  }, 1000);
+}
+
+async function refresh(silent = false) {
+  if (busy) return;
+  busy = true;
+
+  const btn  = document.getElementById('refresh-btn') as HTMLButtonElement | null;
+  const icon = document.getElementById('refresh-icon');
+  if (btn)  btn.disabled = true;
+  if (icon) { icon.style.transition = 'transform .7s'; icon.style.transform = 'rotate(360deg)'; }
+
+  await Promise.allSettled([loadCrypto(silent), loadStocks(silent), loadCommodities(silent)]);
+
+  setTimestamp();
+  busy = false;
+  if (btn)  btn.disabled = false;
+  if (icon) setTimeout(() => { icon.style.transition = ''; icon.style.transform = ''; }, 750);
+  startCountdown();
+}
+
+// ── Wire buttons ─────────────────────────────────────────────────
+document.getElementById('refresh-btn')  ?.addEventListener('click', () => { if (cdTimer) clearInterval(cdTimer); refresh(false); });
+document.getElementById('retry-crypto') ?.addEventListener('click', () => loadCrypto(false));
+document.getElementById('retry-stocks') ?.addEventListener('click', () => loadStocks(false));
+document.getElementById('retry-comm')   ?.addEventListener('click', () => loadCommodities(false));
+
+// ── Boot ─────────────────────────────────────────────────────────
+refresh(false);
+</script>

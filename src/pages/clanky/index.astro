@@ -1,0 +1,117 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+
+const allArticles = await getCollection('clanky');
+const sorted = allArticles.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const categories = [
+  { value: 'all', label: 'Vše' },
+  { value: 'investice', label: 'Investice' },
+  { value: 'podnikani', label: 'Podnikání' },
+  { value: 'finance', label: 'Finance' },
+  { value: 'krypto', label: 'Krypto' },
+];
+---
+
+<BaseLayout
+  title="Všechny články"
+  description="Procházejte všechny články o financích, investicích, podnikání a kryptu."
+>
+
+  <!-- Header -->
+  <section class="pt-16 pb-10 border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <p class="text-gold-primary text-sm font-semibold uppercase tracking-widest mb-3">Archiv</p>
+      <h1 class="font-display text-5xl md:text-6xl font-bold text-text-primary mb-4">Všechny články</h1>
+      <p class="text-text-secondary text-lg max-w-xl">
+        Finance, investice a podnikání — najdi co tě zajímá.
+      </p>
+    </div>
+  </section>
+
+  <!-- Filter + Grid -->
+  <section class="py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Category filter -->
+      <div class="flex flex-wrap gap-3 mb-10" id="filter-bar">
+        {categories.map(cat => (
+          <button
+            class="filter-btn px-5 py-2 rounded-full text-sm font-medium border transition-all duration-200"
+            data-filter={cat.value}
+            data-active={cat.value === 'all' ? 'true' : 'false'}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
+      <!-- Article count -->
+      <p class="text-text-secondary text-sm mb-6" id="article-count">
+        {sorted.length} článků
+      </p>
+
+      <!-- Grid -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="articles-grid">
+        {sorted.map(article => (
+          <ArticleCard article={article} />
+        ))}
+      </div>
+
+      <!-- Empty state -->
+      <div id="empty-state" class="hidden text-center py-20">
+        <div class="text-5xl mb-4">🔍</div>
+        <p class="text-text-secondary text-lg">Žádné články v této kategorii.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .filter-btn[data-active="true"] {
+    background-color: #D4AF37;
+    color: #0a0a0a;
+    border-color: #D4AF37;
+  }
+  .filter-btn[data-active="false"] {
+    background-color: transparent;
+    color: #A0A0A0;
+    border-color: #2a2a2a;
+  }
+  .filter-btn[data-active="false"]:hover {
+    border-color: #D4AF37;
+    color: #D4AF37;
+  }
+</style>
+
+<script>
+  const btns = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const cards = document.querySelectorAll<HTMLElement>('[data-article-category]');
+  const countEl = document.getElementById('article-count');
+  const emptyState = document.getElementById('empty-state');
+  const grid = document.getElementById('articles-grid');
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter!;
+
+      btns.forEach(b => b.dataset.active = 'false');
+      btn.dataset.active = 'true';
+
+      let visible = 0;
+      cards.forEach(card => {
+        const match = filter === 'all' || card.dataset.articleCategory === filter;
+        (card as HTMLElement).style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+
+      if (countEl) countEl.textContent = `${visible} článků`;
+      if (emptyState && grid) {
+        emptyState.classList.toggle('hidden', visible > 0);
+        grid.classList.toggle('hidden', visible === 0);
+      }
+    });
+  });
+</script>

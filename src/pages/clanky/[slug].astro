@@ -1,0 +1,292 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CategoryBadge from '../../components/CategoryBadge.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import LeadMagnetBlock from '../../components/LeadMagnetBlock.astro';
+import ArticleReactions from '../../components/ArticleReactions.astro';
+import KeyPointsBox from '../../components/KeyPointsBox.astro';
+import { getCollection } from 'astro:content';
+
+const glossaryTerms: Record<string, { id: string; label: string; short: string }[]> = {
+  investice: [
+    { id: 'etf', label: 'ETF', short: 'Fond kopírující index' },
+    { id: 'dca', label: 'DCA', short: 'Pravidelné investování' },
+    { id: 'diverzifikace', label: 'Diverzifikace', short: 'Rozložení rizika' },
+    { id: 'compound-interest', label: 'Složené úročení', short: 'Úrok z úroků' },
+    { id: 'index-fond', label: 'Index fond', short: 'Pasivní fond' },
+    { id: 'volatilita', label: 'Volatilita', short: 'Míra kolísání ceny' },
+  ],
+  krypto: [
+    { id: 'bitcoin', label: 'Bitcoin', short: 'První kryptoměna' },
+    { id: 'hodl', label: 'HODL', short: 'Strategické držení' },
+    { id: 'halving', label: 'Halving', short: 'Snížení odměny těžařů' },
+    { id: 'blockchain', label: 'Blockchain', short: 'Distribuovaná databáze' },
+    { id: 'volatilita', label: 'Volatilita', short: 'Míra kolísání ceny' },
+    { id: 'wallet', label: 'Wallet', short: 'Krypto peněženka' },
+  ],
+  finance: [
+    { id: 'inflace', label: 'Inflace', short: 'Růst cenové hladiny' },
+    { id: 'deflace', label: 'Deflace', short: 'Pokles cenové hladiny' },
+    { id: 'urokova-sazba', label: 'Úroková sazba', short: 'Cena peněz' },
+    { id: 'compound-interest', label: 'Složené úročení', short: 'Úrok z úroků' },
+    { id: 'likvidita', label: 'Likvidita', short: 'Rychlost přeměny na hotovost' },
+  ],
+  podnikani: [
+    { id: 'cashflow', label: 'Cashflow', short: 'Tok peněz v byznysu' },
+    { id: 'roi', label: 'ROI', short: 'Návratnost investice' },
+    { id: 'pasivni-prijem', label: 'Pasivní příjem', short: 'Příjem bez aktivní práce' },
+    { id: 'due-diligence', label: 'Due diligence', short: 'Hloubková prověrka' },
+    { id: 'burn-rate', label: 'Burn rate', short: 'Rychlost utrácení kapitálu' },
+  ],
+};
+
+export async function getStaticPaths() {
+  const articles = await getCollection('clanky');
+  return articles.map(article => ({
+    params: { slug: article.slug },
+    props: { article, allArticles: articles },
+  }));
+}
+
+const { article, allArticles } = Astro.props;
+const { Content, headings } = await article.render();
+const { title, excerpt, category, date, readTime, keyPoints } = article.data;
+
+const related = allArticles
+  .filter(a => a.slug !== article.slug && a.data.category === category)
+  .slice(0, 3);
+
+const formattedDate = date.toLocaleDateString('cs-CZ', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+
+const emoji = { krypto: '₿', investice: '📈', finance: '💰', podnikani: '🚀' }[category];
+const slug = article.slug;
+---
+
+<BaseLayout title={title} description={excerpt} type="article" publishedDate={date.toISOString()}>
+
+  <!-- Hero banner -->
+  <div class="w-full h-48 sm:h-64 bg-surface border-b border-border flex items-center justify-center relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-surface/60"></div>
+    <span class="text-7xl sm:text-9xl opacity-30 relative z-10">{emoji}</span>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- Breadcrumb -->
+    <nav class="mb-8 flex items-center gap-2 text-sm text-text-secondary flex-wrap">
+      <a href="/" class="hover:text-gold-primary transition-colors">Domů</a>
+      <span>/</span>
+      <a href="/clanky" class="hover:text-gold-primary transition-colors">Články</a>
+      <span>/</span>
+      <span class="text-text-primary truncate max-w-xs">{title}</span>
+    </nav>
+
+    <!-- Meta + Save button -->
+    <div class="flex flex-wrap items-center gap-4 mb-5">
+      <CategoryBadge category={category} />
+      <span class="text-text-secondary text-sm">{formattedDate}</span>
+      <span class="text-text-secondary text-sm">•</span>
+      <span class="text-text-secondary text-sm">{readTime} min čtení</span>
+      <!-- Save button -->
+      <button
+        id="save-article-btn"
+        data-slug={slug}
+        class="ml-auto flex items-center gap-2 text-text-secondary hover:text-gold-primary transition-colors text-sm border border-border hover:border-gold-primary/40 rounded-lg px-3 py-1.5"
+        aria-label="Uložit článek"
+      >
+        <svg id="save-icon-empty" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+        </svg>
+        <svg id="save-icon-filled" class="w-4 h-4 hidden text-gold-primary" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+        </svg>
+        <span id="save-label">Uložit</span>
+      </button>
+    </div>
+
+    <!-- Title -->
+    <h1 class="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-text-primary leading-tight mb-6 max-w-4xl">
+      {title}
+    </h1>
+
+    <!-- Excerpt -->
+    <p class="text-text-secondary text-xl leading-relaxed mb-8 max-w-3xl">{excerpt}</p>
+
+    <!-- Author bar -->
+    <div class="flex items-center gap-3 border-t border-b border-border py-4 mb-10 max-w-4xl">
+      <div class="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-xl flex-shrink-0">🐂</div>
+      <div>
+        <div class="text-text-primary text-sm font-semibold">Byzák & tým Byznys Denne</div>
+        <div class="text-text-secondary text-xs">Průvodce financemi · @byznysdenne</div>
+      </div>
+    </div>
+
+    <!-- Key Points -->
+    {keyPoints && keyPoints.length > 0 && (
+      <div class="max-w-4xl mb-6">
+        <KeyPointsBox points={keyPoints} />
+      </div>
+    )}
+
+    <!-- Content + Sidebar -->
+    <div class="grid lg:grid-cols-[1fr_300px] gap-12 xl:gap-16">
+
+      <!-- Article body -->
+      <div>
+        <article id="article-content" class="prose prose-lg max-w-none
+          prose-headings:font-display prose-headings:font-bold
+          prose-h2:text-text-primary prose-h2:text-3xl prose-h2:mt-10 prose-h2:mb-4
+          prose-h3:text-text-primary prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3
+          prose-p:text-text-secondary prose-p:leading-relaxed
+          prose-strong:text-text-primary prose-strong:font-semibold
+          prose-a:text-gold-primary prose-a:no-underline hover:prose-a:text-gold-light
+          prose-li:text-text-secondary
+          prose-ul:my-4 prose-ol:my-4
+          prose-hr:border-border
+          prose-blockquote:border-l-4 prose-blockquote:border-gold-primary prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-text-secondary
+          prose-code:text-gold-primary prose-code:bg-card prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none
+        ">
+          <Content />
+        </article>
+
+        <!-- Inline lead magnet (injected after 3rd paragraph by JS) -->
+        <div id="inline-lead-magnet" style="display:none">
+          <LeadMagnetBlock variant="inline" />
+        </div>
+
+        <!-- Reactions -->
+        <ArticleReactions slug={slug} />
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="hidden lg:flex flex-col gap-6">
+        {headings.filter(h => h.depth <= 3).length > 0 && (
+          <div class="bg-card border border-border rounded-xl p-5 sticky top-24">
+            <h3 class="font-display text-base font-bold text-text-primary mb-4 uppercase tracking-wider">Obsah článku</h3>
+            <nav class="space-y-1">
+              {headings.filter(h => h.depth <= 3).map(h => (
+                <a href={`#${h.slug}`} class={`block text-sm py-1 transition-colors duration-200 hover:text-gold-primary ${h.depth === 2 ? 'text-text-secondary font-medium' : 'text-text-secondary/60 pl-4 text-xs'}`}>
+                  {h.text}
+                </a>
+              ))}
+            </nav>
+          </div>
+        )}
+        <!-- Lead magnet sidebar -->
+        <LeadMagnetBlock variant="sidebar" />
+      </aside>
+    </div>
+  </div>
+
+  <!-- Glossary terms -->
+  {glossaryTerms[category] && (
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+      <div class="max-w-4xl bg-card border border-border rounded-xl p-6">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="text-xl">📖</span>
+          <h3 class="font-display text-lg font-bold text-text-primary">Klíčové pojmy z tohoto článku</h3>
+          <a href="/slovnik" class="ml-auto text-xs text-text-secondary hover:text-gold-primary transition-colors">Celý slovník →</a>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {glossaryTerms[category]!.map(t => (
+            <a href={`/slovnik#${t.id}`} class="flex items-start gap-2 p-3 bg-surface rounded-lg border border-border hover:border-gold-primary/40 transition-colors group">
+              <span class="text-gold-primary font-semibold text-sm group-hover:text-gold-light transition-colors">{t.label}</span>
+              <span class="text-text-secondary text-xs leading-snug mt-0.5">— {t.short}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+
+  <!-- Category CTA -->
+  {(category === 'investice' || category === 'finance') && (
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+      <div class="max-w-4xl bg-gradient-to-r from-card to-surface border border-gold-primary/20 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
+        <div class="text-4xl flex-shrink-0">📊</div>
+        <div class="flex-1 text-center sm:text-left">
+          <h3 class="font-display text-xl font-bold text-text-primary mb-1">Spočítej si svůj investiční potenciál</h3>
+          <p class="text-text-secondary text-sm">Vidíš, jak tvé peníze porostou za 10, 20 nebo 40 let. Kalkulačka složeného úroku zdarma.</p>
+        </div>
+        <a href="/kalkulacka" class="btn-gold px-6 py-3 text-sm flex-shrink-0">Otevřít kalkulačku →</a>
+      </div>
+    </div>
+  )}
+  {category === 'krypto' && (
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+      <div class="max-w-4xl bg-gradient-to-r from-card to-surface border border-gold-primary/20 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
+        <div class="text-4xl flex-shrink-0">🌡️</div>
+        <div class="flex-1 text-center sm:text-left">
+          <h3 class="font-display text-xl font-bold text-text-primary mb-1">Aktuální sentiment trhu</h3>
+          <p class="text-text-secondary text-sm">Jak Byzák vidí náladu trhů tento týden? Podívej se na náš týdenní Index trhu.</p>
+        </div>
+        <a href="/index-trhu" class="btn-gold px-6 py-3 text-sm flex-shrink-0">Zobrazit index →</a>
+      </div>
+    </div>
+  )}
+
+  <!-- Related articles -->
+  {related.length > 0 && (
+    <section class="bg-surface border-t border-border py-16 mt-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="section-title mb-8">Podobné články</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {related.map(a => <ArticleCard article={a} />)}
+        </div>
+      </div>
+    </section>
+  )}
+
+</BaseLayout>
+
+<!-- Inject inline form after 3rd paragraph + save button logic -->
+<script>
+  // ── Inline lead magnet ──────────────────────────────────────────────
+  const inlineForm = document.getElementById('inline-lead-magnet');
+  const articleContent = document.getElementById('article-content');
+  if (inlineForm && articleContent) {
+    const paragraphs = articleContent.querySelectorAll('p');
+    if (paragraphs.length >= 3) {
+      paragraphs[2].insertAdjacentElement('afterend', inlineForm);
+      inlineForm.style.display = '';
+    } else if (paragraphs.length > 0) {
+      paragraphs[paragraphs.length - 1].insertAdjacentElement('afterend', inlineForm);
+      inlineForm.style.display = '';
+    }
+  }
+
+  // ── Save article ────────────────────────────────────────────────────
+  const saveBtn = document.getElementById('save-article-btn') as HTMLButtonElement | null;
+  const iconEmpty = document.getElementById('save-icon-empty');
+  const iconFilled = document.getElementById('save-icon-filled');
+  const saveLabel = document.getElementById('save-label');
+
+  if (saveBtn) {
+    const slug = saveBtn.dataset.slug!;
+    const STORAGE_KEY = 'savedArticles';
+    const saved = (): string[] => JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+    function updateState(isSaved: boolean) {
+      iconEmpty?.classList.toggle('hidden', isSaved);
+      iconFilled?.classList.toggle('hidden', !isSaved);
+      if (saveLabel) saveLabel.textContent = isSaved ? 'Uloženo ✓' : 'Uložit';
+      saveBtn!.style.color = isSaved ? '#D4AF37' : '';
+    }
+
+    updateState(saved().includes(slug));
+
+    saveBtn.addEventListener('click', () => {
+      const list = saved();
+      if (list.includes(slug)) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list.filter(s => s !== slug)));
+        updateState(false);
+      } else {
+        list.push(slug);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        updateState(true);
+      }
+    });
+  }
+</script>

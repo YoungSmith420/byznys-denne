@@ -1,0 +1,303 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import LeadMagnetBlock from '../components/LeadMagnetBlock.astro';
+import { getCollection } from 'astro:content';
+
+const allArticles = await getCollection('clanky');
+const featuredArticles = allArticles
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
+---
+
+<BaseLayout title="Byznys Denne" description="Finance, investice a podnikání — bez zbytečných keců.">
+
+  <!-- ─── HERO ─────────────────────────────────────────────────────────── -->
+  <section class="relative overflow-hidden pt-16 pb-28 min-h-[90vh] flex items-center">
+    <!-- Particles canvas -->
+    <canvas id="hero-particles" class="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true"></canvas>
+    <!-- Background glow -->
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gold-primary/4 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <!-- Label pill -->
+      <div class="fade-in-up mb-8 inline-block px-4 py-2 bg-gold-primary/10 border border-gold-primary/30 rounded-full text-gold-primary text-sm font-medium">
+        📈 Finance, Investice & Podnikání
+      </div>
+
+      <!-- Headline -->
+      <h1 class="fade-in-up fade-in-up-delay-1 font-display font-bold leading-none mb-6">
+        <span class="gold-gradient block text-7xl sm:text-8xl md:text-9xl">Byznys</span>
+        <span class="text-text-primary block text-5xl sm:text-6xl md:text-7xl mt-2">každý den.</span>
+      </h1>
+
+      <p class="fade-in-up fade-in-up-delay-2 text-text-secondary text-xl md:text-2xl max-w-2xl mx-auto mb-10 leading-relaxed">
+        Finance, investice a podnikání —<br class="hidden sm:block" /> bez zbytečných keců.
+      </p>
+
+      <!-- CTAs -->
+      <div class="fade-in-up fade-in-up-delay-3 flex flex-col sm:flex-row gap-4 justify-center mb-6">
+        <a href="/clanky" class="btn-gold text-base px-8 py-4">Číst články →</a>
+        <a href="https://instagram.com/byznysdenne" target="_blank" rel="noopener noreferrer" class="btn-outline text-base px-8 py-4">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          Sledovat na Instagramu →
+        </a>
+      </div>
+      <!-- Beginner link -->
+      <a href="/zacatecnik" class="inline-flex items-center gap-2 text-text-secondary hover:text-gold-primary transition-colors text-sm">
+        🎓 Začínáš s investováním? Začni zde →
+      </a>
+
+      <!-- Stats -->
+      <div class="mt-20 pt-10 border-t border-border grid grid-cols-3 gap-8 max-w-lg mx-auto">
+        {[
+          { value: '12 000+', label: 'sledujících' },
+          { value: '50+', label: 'článků' },
+          { value: '2×', label: 'týdně nový obsah' },
+        ].map(s => (
+          <div class="text-center">
+            <div class="font-display text-3xl font-bold text-gold-primary">{s.value}</div>
+            <div class="text-text-secondary text-xs mt-1">{s.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SOCIAL PROOF ─────────────────────────────────────────────────── -->
+  <section class="py-16 bg-surface border-y border-border">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-3 gap-8 text-center">
+        {[
+          { value: '12 000+', label: 'sledujících na Instagramu', icon: '📸' },
+          { value: '4×', label: 'nové články každý týden', icon: '✍️' },
+          { value: '100%', label: 'zdarma navždy', icon: '🎁' },
+        ].map(s => (
+          <div class="group">
+            <div class="text-3xl mb-2">{s.icon}</div>
+            <div class="font-display text-3xl md:text-4xl font-bold text-gold-primary mb-1">{s.value}</div>
+            <div class="text-text-secondary text-xs md:text-sm leading-snug">{s.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FEATURED ARTICLES ─────────────────────────────────────────────── -->
+  <section class="py-28">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-12">
+        <div>
+          <p class="text-gold-primary text-sm font-semibold uppercase tracking-widest mb-2">Nejnovější</p>
+          <h2 class="section-title">Čerstvé články</h2>
+        </div>
+        <a href="/clanky" class="hidden sm:flex items-center gap-2 text-text-secondary hover:text-gold-primary transition-colors duration-200 text-sm font-medium">
+          Zobrazit vše →
+        </a>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {featuredArticles.map(article => (
+          <ArticleCard article={article} />
+        ))}
+      </div>
+      <div class="mt-8 text-center sm:hidden">
+        <a href="/clanky" class="btn-outline px-6 py-3 text-sm">Zobrazit všechny články →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── NÁSTROJE ───────────────────────────────────────────────────────── -->
+  <section class="py-28 border-t border-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-12">
+        <p class="text-gold-primary text-sm font-semibold uppercase tracking-widest mb-2">Zdarma</p>
+        <h2 class="section-title">Nástroje pro investory</h2>
+      </div>
+      <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <a href="/trhy" class="group bg-card border border-gold-primary/20 rounded-2xl p-8 card-hover flex flex-col relative overflow-hidden">
+          <div class="absolute top-3 right-3 flex items-center gap-1.5 bg-accent-green/10 border border-accent-green/30 rounded-full px-2.5 py-1">
+            <span class="relative flex h-1.5 w-1.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent-green"></span>
+            </span>
+            <span class="text-accent-green text-xs font-semibold">Live</span>
+          </div>
+          <div class="text-5xl mb-5">🌍</div>
+          <h3 class="font-display text-2xl font-bold text-text-primary mb-2 group-hover:text-gold-primary transition-colors">Živé trhy</h3>
+          <p class="text-text-secondary text-sm leading-relaxed flex-1">Aktuální ceny Bitcoinu, Etherea, akcií Apple, NVIDIA a dalších. Data v reálném čase.</p>
+          <span class="text-gold-primary text-sm font-semibold mt-5 group-hover:text-gold-light transition-colors">Zobrazit trhy →</span>
+        </a>
+        <a href="/kalkulacka" class="group bg-card border border-border rounded-2xl p-8 card-hover flex flex-col">
+          <div class="text-5xl mb-5">📊</div>
+          <h3 class="font-display text-2xl font-bold text-text-primary mb-2 group-hover:text-gold-primary transition-colors">Kalkulačka</h3>
+          <p class="text-text-secondary text-sm leading-relaxed flex-1">Spočítej si, kolik tvé peníze vyrostou za 10, 20 nebo 40 let díky složenému úroku.</p>
+          <span class="text-gold-primary text-sm font-semibold mt-5 group-hover:text-gold-light transition-colors">Otevřít kalkulačku →</span>
+        </a>
+        <a href="/slovnik" class="group bg-card border border-border rounded-2xl p-8 card-hover flex flex-col">
+          <div class="text-5xl mb-5">📖</div>
+          <h3 class="font-display text-2xl font-bold text-text-primary mb-2 group-hover:text-gold-primary transition-colors">Slovník byznysu</h3>
+          <p class="text-text-secondary text-sm leading-relaxed flex-1">Přes 40 finančních pojmů vysvětlených česky. ETF, DCA, Bitcoin, inflace — vše na jednom místě.</p>
+          <span class="text-gold-primary text-sm font-semibold mt-5 group-hover:text-gold-light transition-colors">Otevřít slovník →</span>
+        </a>
+        <a href="/index-trhu" class="group bg-card border border-border rounded-2xl p-8 card-hover flex flex-col">
+          <div class="text-5xl mb-5">🌡️</div>
+          <h3 class="font-display text-2xl font-bold text-text-primary mb-2 group-hover:text-gold-primary transition-colors">Index trhu</h3>
+          <p class="text-text-secondary text-sm leading-relaxed flex-1">Týdenní sentiment indicator — jak Byzák vidí náladu trhů na škále 1 (medvěd) až 10 (býk).</p>
+          <span class="text-gold-primary text-sm font-semibold mt-5 group-hover:text-gold-light transition-colors">Zobrazit index →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ABOUT ─────────────────────────────────────────────────────────── -->
+  <section class="py-28 bg-surface">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-2 gap-16 items-center">
+        <div>
+          <p class="text-gold-primary text-sm font-semibold uppercase tracking-widest mb-4">O Byznys Denne</p>
+          <h2 class="section-title mb-6">Finance pro<br /><span class="text-gold-primary">normální lidi.</span></h2>
+          <p class="text-text-secondary text-lg leading-relaxed mb-5">
+            Byznys Denne vznikl z frustrace. Finance se vždy prezentovaly jako věc „odborníků" — plná složitých termínů a nedostupných rad.
+          </p>
+          <p class="text-text-secondary text-lg leading-relaxed mb-8">
+            My věříme, že každý může pochopit, jak fungují peníze — a nechat je pracovat pro sebe. Bez zbytečných keců, rovnou k věci.
+          </p>
+          <div class="flex items-center gap-4">
+            <a href="/o-nas" class="btn-gold px-6 py-3 text-sm">Zjistit víc →</a>
+            <a href="/zacatecnik" class="text-text-secondary hover:text-gold-primary transition-colors text-sm font-medium">🎓 Začínáš? Začni zde →</a>
+          </div>
+        </div>
+        <div class="flex items-center justify-center">
+          <div class="relative">
+            <div class="w-56 h-56 md:w-72 md:h-72 bg-card border-2 border-gold-primary/20 rounded-full flex items-center justify-center shadow-[0_0_80px_rgba(212,175,55,0.15)] hover:shadow-[0_0_100px_rgba(212,175,55,0.25)] transition-all duration-500">
+              <span class="text-8xl md:text-9xl">🐂</span>
+            </div>
+            <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-card border border-border px-4 py-2 rounded-full text-xs text-text-secondary whitespace-nowrap shadow-lg">
+              Byzák — váš průvodce financemi 🤙
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LEAD MAGNET ──────────────────────────────────────────────────── -->
+  <section class="py-28">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      <LeadMagnetBlock variant="hero" />
+    </div>
+  </section>
+
+  <!-- ─── EARLY ACCESS ─────────────────────────────────────────────────── -->
+  <section class="py-28 relative overflow-hidden border-t border-border">
+    <!-- Gold gradient bg -->
+    <div class="absolute inset-0 bg-gradient-to-br from-gold-primary/5 via-transparent to-gold-primary/3 pointer-events-none"></div>
+    <div class="absolute inset-0 border-y border-gold-primary/10 pointer-events-none"></div>
+
+    <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="inline-block px-4 py-2 bg-gold-primary/10 border border-gold-primary/30 rounded-full text-gold-primary text-sm font-semibold mb-6">
+        🚀 Brzy k dispozici
+      </div>
+      <h2 class="font-display text-4xl md:text-5xl font-bold text-text-primary mb-5 leading-tight">
+        Něco velkého se chystá.
+      </h2>
+      <p class="text-text-secondary text-lg leading-relaxed mb-8 max-w-xl mx-auto">
+        Tvoříme investiční aplikaci, která ti pomůže sledovat portfolio, analyzovat akcie a investovat chytřeji. Buď první, kdo ji vyzkouší.
+      </p>
+
+      <form id="early-access-form" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-5">
+        <input type="email" placeholder="tvuj@email.cz" required
+          class="flex-1 bg-background border border-border rounded-xl px-5 py-4 text-text-primary placeholder-text-secondary focus:outline-none focus:border-gold-primary transition-colors"/>
+        <button type="submit" class="btn-gold px-7 py-4 font-bold whitespace-nowrap">Chci early access →</button>
+      </form>
+      <div id="early-access-success" class="hidden mb-5">
+        <p class="text-accent-green font-semibold">🎉 Super! Dostaneš přístup jako první.</p>
+      </div>
+
+      <!-- Counter -->
+      <p class="text-text-secondary text-sm">
+        Již <span id="early-access-count" class="font-bold text-gold-primary text-base">847</span> lidí čeká
+      </p>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<!-- Particles canvas script -->
+<script>
+  const canvas = document.getElementById('hero-particles') as HTMLCanvasElement;
+  if (canvas) {
+    const ctx = canvas.getContext('2d')!;
+    let W = canvas.offsetWidth, H = canvas.offsetHeight;
+    canvas.width = W; canvas.height = H;
+
+    const particles = Array.from({ length: 45 }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.4 + 0.3,
+      speed: Math.random() * 0.25 + 0.08,
+      opacity: Math.random() * 0.18 + 0.04,
+      drift: Math.random() * 0.4 - 0.2,
+      phase: Math.random() * Math.PI * 2,
+    }));
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => {
+        p.y -= p.speed;
+        p.phase += 0.008;
+        p.x += Math.sin(p.phase) * p.drift;
+        if (p.y < -4) { p.y = H + 4; p.x = Math.random() * W; }
+        if (p.x < -4) p.x = W + 4;
+        if (p.x > W + 4) p.x = -4;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(212,175,55,${p.opacity})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    const ro = new ResizeObserver(() => {
+      W = canvas.offsetWidth; H = canvas.offsetHeight;
+      canvas.width = W; canvas.height = H;
+    });
+    ro.observe(canvas);
+  }
+</script>
+
+<!-- Early access counter -->
+<script>
+  const COUNTER_KEY = 'earlyAccessCount';
+  const DEFAULT = 847;
+  const countEl = document.getElementById('early-access-count');
+  const form = document.getElementById('early-access-form') as HTMLFormElement | null;
+  const successEl = document.getElementById('early-access-success');
+
+  function getCount(): number {
+    return parseInt(localStorage.getItem(COUNTER_KEY) || DEFAULT.toString());
+  }
+  function setCount(n: number) {
+    localStorage.setItem(COUNTER_KEY, n.toString());
+  }
+
+  if (countEl) countEl.textContent = getCount().toString();
+
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = (form.querySelector('input[type="email"]') as HTMLInputElement).value;
+    const emails: string[] = JSON.parse(localStorage.getItem('earlyAccessEmails') || '[]');
+    if (!emails.includes(email)) {
+      emails.push(email);
+      localStorage.setItem('earlyAccessEmails', JSON.stringify(emails));
+      const newCount = getCount() + 1;
+      setCount(newCount);
+      if (countEl) countEl.textContent = newCount.toString();
+    }
+    form.classList.add('hidden');
+    successEl?.classList.remove('hidden');
+  });
+</script>

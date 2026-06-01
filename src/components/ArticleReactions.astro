@@ -1,0 +1,65 @@
+---
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+
+const reactions = [
+  { key: 'fire',    emoji: '🔥', label: 'Skvělé',        base: 47 },
+  { key: 'bulb',    emoji: '💡', label: 'Naučil jsem se', base: 32 },
+  { key: 'think',   emoji: '🤔', label: 'Zajímavé',       base: 18 },
+  { key: 'thumbs',  emoji: '👍', label: 'Užitečné',       base: 56 },
+  { key: 'rocket',  emoji: '🚀', label: 'Sdílím dál',     base: 29 },
+];
+---
+
+<div class="py-8 border-t border-border">
+  <p class="text-text-secondary text-sm mb-4 text-center">Jak se ti článek líbil?</p>
+  <div class="flex flex-wrap justify-center gap-3" id="reactions-container" data-slug={slug}>
+    {reactions.map(r => (
+      <button
+        class="reaction-btn flex flex-col items-center gap-1.5 px-4 py-3 bg-card border border-border rounded-xl hover:border-gold-primary/50 transition-all duration-200 group min-w-[72px]"
+        data-key={r.key}
+        data-base={r.base}
+      >
+        <span class="text-2xl group-hover:scale-125 transition-transform duration-200 block">{r.emoji}</span>
+        <span class="reaction-count text-text-secondary text-xs font-semibold tabular-nums">{r.base}</span>
+        <span class="text-text-secondary text-xs leading-none">{r.label}</span>
+      </button>
+    ))}
+  </div>
+</div>
+
+<script>
+  const container = document.getElementById('reactions-container')!;
+  const slug = container.dataset.slug!;
+  const STORAGE_KEY = `reactions_${slug}`;
+
+  const saved: Record<string, number> = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
+  // Apply saved extras
+  container.querySelectorAll<HTMLElement>('.reaction-btn').forEach(btn => {
+    const key = btn.dataset.key!;
+    const base = parseInt(btn.dataset.base!);
+    const extra = saved[key] || 0;
+    const countEl = btn.querySelector('.reaction-count')!;
+    countEl.textContent = (base + extra).toString();
+    if (extra > 0) {
+      btn.classList.add('border-gold-primary/50', 'bg-gold-primary/5');
+      (countEl as HTMLElement).style.color = '#D4AF37';
+    }
+
+    btn.addEventListener('click', () => {
+      if (saved[key]) return; // already voted
+      saved[key] = 1;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      countEl.textContent = (base + 1).toString();
+      btn.classList.add('border-gold-primary/50', 'bg-gold-primary/5');
+      (countEl as HTMLElement).style.color = '#D4AF37';
+      // Animate
+      const emojiEl = btn.querySelector('span:first-child')!;
+      emojiEl.classList.add('scale-150');
+      setTimeout(() => emojiEl.classList.remove('scale-150'), 300);
+    });
+  });
+</script>

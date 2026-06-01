@@ -1,0 +1,253 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+interface Term {
+  id: string;
+  term: string;
+  definition: string;
+  category: 'investice' | 'krypto' | 'podnikani' | 'ekonomika';
+  articleLink?: string;
+  articleLabel?: string;
+}
+
+const terms: Term[] = [
+  // A
+  { id: 'akcie', term: 'Akcie', definition: 'Podíl ve firmě — koupí akcie se stáváš spolumajitelem společnosti. Máš právo na část zisku (dividendu) i hlasování na valné hromadě. Cena akcie roste nebo klesá podle výkonu firmy a nálady trhu.', category: 'investice', articleLink: '/clanky/jak-zacit-investovat', articleLabel: 'Jak začít investovat' },
+  { id: 'alokace-aktiv', term: 'Alokace aktiv', definition: 'Rozdělení investic mezi různé třídy aktiv — akcie, dluhopisy, nemovitosti, hotovost, krypto. Správná alokace závisí na věku, cílech a toleranci k riziku. Klíč k dlouhodobému úspěchu.', category: 'investice' },
+  { id: 'amortizace', term: 'Amortizace', definition: 'Postupné splácení dluhu v pravidelných splátkách. Každá splátka obsahuje část jistiny i úrok. Amortizační plán ukazuje, jak se dluh snižuje v čase.', category: 'ekonomika' },
+  // B
+  { id: 'bear-market', term: 'Bear market', definition: 'Trh, který klesl o více než 20 % ze svého nedávného maxima. Charakterizuje ho pesimismus, strach a prodeje. Typicky trvá měsíce až roky. Opak bull marketu.', category: 'investice' },
+  { id: 'bitcoin', term: 'Bitcoin', definition: 'První decentralizovaná kryptoměna, vytvořená v roce 2009 pod pseudonymem Satoshi Nakamoto. Má pevně danou maximální zásobu 21 milionů mincí — žádná centrální banka ho nemůže "vytisknout".', category: 'krypto', articleLink: '/clanky/bitcoin-proc-si-koupit', articleLabel: 'Bitcoin v roce 2025' },
+  { id: 'blockchain', term: 'Blockchain', definition: 'Distribuovaná databáze transakcí, sdílená a ověřovaná tisíci počítači najednou. Každý "blok" obsahuje data a hash předchozího bloku — změnit historii je prakticky nemožné.', category: 'krypto', articleLink: '/clanky/bitcoin-proc-si-koupit', articleLabel: 'Bitcoin v roce 2025' },
+  { id: 'bull-market', term: 'Bull market', definition: 'Trh, který roste o více než 20 % ze svého nedávného minima. Doprovází ho optimismus, nákupy a pozitivní nálada. Opak bear marketu. Název pochází z toho, jak býk útočí — zdola nahoru.', category: 'investice' },
+  { id: 'burn-rate', term: 'Burn rate', definition: 'Rychlost, jakou startup utrácí svůj kapitál za provozu (měsíčně). Čím vyšší burn rate, tím kratší "runway" — čas, který firmě zbývá do vyčerpání peněz.', category: 'podnikani' },
+  // C
+  { id: 'cashflow', term: 'Cashflow', definition: 'Tok peněz dovnitř a ven z firmy nebo portfolia. Pozitivní cashflow = více peněz přichází, než odchází. Klíčový ukazatel zdraví byznysu i pasivního příjmu.', category: 'podnikani', articleLink: '/clanky/side-hustle-napady', articleLabel: '5 side hustles v Česku' },
+  { id: 'compound-interest', term: 'Compound interest (Složené úročení)', definition: 'Princip, kdy tvé výnosy samy generují další výnosy — "úrok z úroků". Klíč k dlouhodobému budování bohatství. Čím déle investuješ, tím silnější efekt.', category: 'investice', articleLink: '/clanky/jak-zacit-investovat', articleLabel: 'Jak začít investovat' },
+  // D
+  { id: 'dca', term: 'DCA (Dollar-Cost Averaging)', definition: 'Strategie pravidelného investování stejné částky bez ohledu na vývoj trhu. Snižuje vliv načasování na průměrnou pořizovací cenu. Funguje lépe než čekání na "správný moment".', category: 'investice', articleLink: '/clanky/jak-zacit-investovat', articleLabel: 'Jak začít investovat' },
+  { id: 'deflace', term: 'Deflace', definition: 'Pokles obecné cenové hladiny. Na rozdíl od inflace je deflace nebezpečná — lidé odkládají nákupy (čekají na nižší ceny), což zpomaluje ekonomiku a může vést k recesi.', category: 'ekonomika' },
+  { id: 'diverzifikace', term: 'Diverzifikace', definition: '"Nedávej všechna vejce do jednoho košíku." Rozložení investic do různých aktiv, sektorů a trhů snižuje celkové riziko portfolia. Ztráta v jedné oblasti nekompenzuje celé portfolio.', category: 'investice', articleLink: '/clanky/jak-zacit-investovat', articleLabel: 'Jak začít investovat' },
+  { id: 'dividenda', term: 'Dividenda', definition: 'Část zisku firmy vyplácená akcionářům — obvykle čtvrtletně nebo ročně. Dividendové akcie jsou oblíbené pro tvorbu pasivního příjmu. Dividendový výnos = dividenda / cena akcie × 100.', category: 'investice' },
+  { id: 'due-diligence', term: 'Due diligence', definition: 'Důkladné prověření projektu, firmy nebo investice před rozhodnutím. Zahrnuje finanční, právní a obchodní analýzu. Každý seriózní investor dělá due diligence před každou větší investicí.', category: 'podnikani' },
+  // E
+  { id: 'etf', term: 'ETF (Exchange-Traded Fund)', definition: 'Fond obchodovaný na burze, který kopíruje index (např. S&P 500). Jeden nákup ETF ti dá podíl ve stovkách firem najednou. Nízké poplatky (0,05–0,25 % ročně), snadná diverzifikace.', category: 'investice', articleLink: '/clanky/jak-zacit-investovat', articleLabel: 'Jak začít investovat' },
+  { id: 'exit-strategie', term: 'Exit strategie', definition: 'Plán, jak investor nebo zakladatel opustí firmu — prodej strategickému kupci, IPO nebo fúze s jinou společností. Každý investor by měl mít exit strategii předem.', category: 'podnikani', articleLink: '/clanky/side-hustle-napady', articleLabel: '5 side hustles v Česku' },
+  // F
+  { id: 'fire', term: 'FIRE movement', definition: 'Financial Independence, Retire Early — hnutí za finanční nezávislost a brzký odchod do důchodu. Cíl: naspořit 25× roční výdaje (tzv. "FIRE number") a žít z výnosů portfolia.', category: 'investice' },
+  { id: 'fond', term: 'Fond (podílový)', definition: 'Sdružené investice od mnoha investorů, spravované profesionálním správcem. Alternativa k ETF — obvykle s vyššími poplatky (1–2 % ročně). Aktivně řízené fondy dlouhodobě většinou ETF indexy neporážejí.', category: 'investice' },
+  // G
+  { id: 'hdp', term: 'GDP / HDP (Hrubý domácí produkt)', definition: 'Celková hodnota všeho zboží a služeb vyrobených v zemi za rok. Hlavní ukazatel velikosti a zdraví ekonomiky. Růst HDP = ekonomika se rozrůstá; pokles 2 čtvrtletí za sebou = recese.', category: 'ekonomika' },
+  // H
+  { id: 'halving', term: 'Halving', definition: 'Pravidelné snížení odměny těžařů Bitcoinu na polovinu (přibližně každé 4 roky). Snižuje tempo vzniku nových BTC a historicky předchází výraznému růstu ceny v horizontu 12–18 měsíců.', category: 'krypto', articleLink: '/clanky/bitcoin-proc-si-koupit', articleLabel: 'Bitcoin v roce 2025' },
+  { id: 'hodl', term: 'HODL', definition: 'Kryptoslang pro "držet" svá aktiva bez prodeje. Vznikl z překlepu slova "hold" ve fórovém příspěvku z roku 2013. Dnes se používá jako zkratka pro "Hold On for Dear Life".', category: 'krypto', articleLink: '/clanky/bitcoin-proc-si-koupit', articleLabel: 'Bitcoin v roce 2025' },
+  // I
+  { id: 'index-fond', term: 'Index fond', definition: 'Fond, který pasivně sleduje vybraný index (S&P 500, MSCI World, atd.). Má nízké poplatky a dlouhodobě překonává většinu aktivně řízených fondů. Základ každého smart portfolia.', category: 'investice', articleLink: '/clanky/jak-zacit-investovat', articleLabel: 'Jak začít investovat' },
+  { id: 'inflace', term: 'Inflace', definition: 'Nárůst obecné cenové hladiny v čase. Při 7% inflaci stojí za rok totéž, co dnes, o 7 % více. Tiše krade kupní sílu peněz na spořicích účtech.', category: 'ekonomika', articleLink: '/clanky/inflace-jak-se-branit', articleLabel: 'Jak se bránit inflaci' },
+  { id: 'ipo', term: 'IPO (Initial Public Offering)', definition: 'První veřejná nabídka akcií — moment, kdy firma vstoupí na burzu a nabídne akcie veřejnosti. Příležitost koupit akcie dříve než ostatní, ale i riziko přeplatit za přehnaný hype.', category: 'investice' },
+  // K
+  { id: 'korekce', term: 'Korekce trhu', definition: 'Pokles hodnoty trhu o 10–20 % ze svého maxima. Běžná a zdravá součást tržního cyklu, která odstraňuje přehřátí. Méně závažná než bear market (pokles 20 %+).', category: 'investice' },
+  { id: 'kryptomena', term: 'Kryptoměna', definition: 'Digitální měna zabezpečená kryptografií, fungující na blockchainu bez centrální autority. Bitcoin je nejstarší a největší. Alternativní kryptoměny se označují jako "altcoiny".', category: 'krypto', articleLink: '/clanky/bitcoin-proc-si-koupit', articleLabel: 'Bitcoin v roce 2025' },
+  // L
+  { id: 'leverage', term: 'Leverage (Páka)', definition: 'Použití půjčených peněz k amplifikaci investičních výnosů — ale i ztrát. Páka 5:1 znamená, že 1 Kč vlastního kapitálu kontroluje 5 Kč pozice. Nebezpečný nástroj pro začátečníky.', category: 'investice' },
+  { id: 'likvidita', term: 'Likvidita', definition: 'Schopnost rychle proměnit aktivum v hotovost bez výrazné ztráty hodnoty. Hotovost je nejlikvidnější, nemovitosti nejméně. Nízká likvidita = risk, že v krizi neprodáš za rozumnou cenu.', category: 'investice' },
+  // M
+  { id: 'market-cap', term: 'Market cap (Tržní kapitalizace)', definition: 'Celková tržní hodnota firmy nebo kryptoměny. Výpočet: cena × počet akcií v oběhu. Apple má market cap přes 3 biliony dolarů — největší firma světa.', category: 'investice' },
+  { id: 'marze', term: 'Marže', definition: 'Buď procentní zisk z prodeje (marže = zisk / tržby × 100), nebo u brokerů: obchodování na úvěr pomocí páky. Záleží vždy na kontextu, ve kterém je pojem použit.', category: 'podnikani' },
+  // N
+  { id: 'nft', term: 'NFT (Non-Fungible Token)', definition: 'Jedinečný digitální token na blockchainu, reprezentující vlastnictví digitálního nebo fyzického aktiva. Na rozdíl od kryptoměn (zaměnitelných) je každé NFT originálem — jako digitální sběratelský předmět.', category: 'krypto' },
+  // O
+  { id: 'dluhopis', term: 'Obligace / Dluhopis', definition: 'Dluhový cenný papír — firma nebo stát si půjčuje peníze od investorů a zavazuje se je vrátit s úrokem. Nižší riziko i výnos než akcie. Základ konzervativního portfolia.', category: 'investice' },
+  // P
+  { id: 'pe-ratio', term: 'P/E ratio', definition: 'Price-to-Earnings poměr — cena akcie děleno ziskem na akcii. Ukazuje, kolik jsou investoři ochotni zaplatit za 1 Kč ročního zisku. Vysoké P/E = drahá nebo rychle rostoucí firma.', category: 'investice' },
+  { id: 'pasivni-prijem', term: 'Pasivní příjem', definition: 'Příjem, který plyne s minimálním průběžným úsilím — dividendy, nájmy, digitální produkty, úroky. Cíl mnoha investorů a podnikatelů. Vyžaduje počáteční investici (peněz nebo času).', category: 'podnikani', articleLink: '/clanky/side-hustle-napady', articleLabel: '5 side hustles v Česku' },
+  { id: 'portfolio', term: 'Portfolio', definition: 'Soubor všech investic jednoho investora — akcie, dluhopisy, ETF, nemovitosti, krypto, hotovost. Dobré portfolio je diverzifikované a odpovídá investorovu horizontu a toleranci k riziku.', category: 'investice' },
+  // R
+  { id: 'rebalancovani', term: 'Rebalancování', definition: 'Periodická úprava portfolia zpět na cílové váhy. Když akcie přerostou cílový podíl, prodáš část a dokoupíš jiné třídy aktiv. Pomáhá udržet riziko na zamýšlené úrovni.', category: 'investice' },
+  { id: 'roi', term: 'ROI (Return on Investment)', definition: 'Výnos z investice vyjádřený jako procento nákladů. Výpočet: (zisk / náklady) × 100. Základní metrika pro hodnocení každé investice nebo obchodního rozhodnutí.', category: 'podnikani', articleLink: '/clanky/side-hustle-napady', articleLabel: '5 side hustles v Česku' },
+  // S
+  { id: 'sp500', term: 'S&P 500', definition: 'Index 500 největších amerických firem obchodovaných na burze. Považován za nejlepší ukazatel zdraví americké ekonomiky. Průměrný roční výnos za posledních 50 let: ~10 % ročně.', category: 'investice', articleLink: '/clanky/jak-zacit-investovat', articleLabel: 'Jak začít investovat' },
+  { id: 'staking', term: 'Staking', definition: 'Uzamčení kryptoměn do sítě za účelem ověřování transakcí — výměnou dostaneš odměny (v kryptu). Způsob jak nechat krypto "úročit". Funguje u proof-of-stake blockchainů (Ethereum, Solana).', category: 'krypto' },
+  { id: 'stop-loss', term: 'Stop-loss', definition: 'Přednastavený příkaz k prodeji aktiva, jakmile cena klesne na určenou úroveň. Ochrana před velkými ztrátami. Profesionální nástroj řízení rizika — emoce tě pak nedrží v propadající pozici.', category: 'investice' },
+  // T
+  { id: 'token', term: 'Token', definition: 'Digitální jednotka na existujícím blockchainu. Na rozdíl od coinů (Bitcoin, Ethereum) tokeny nevytvářejí vlastní síť, ale fungují na existujícím blockchainu. Většina DeFi projektů funguje přes tokeny.', category: 'krypto' },
+  // U
+  { id: 'urokova-sazba', term: 'Úroková sazba', definition: 'Cena peněz — procento, které věřitel účtuje za půjčku. Centrální banky (ČNB, FED, ECB) ji nastavují a ovlivňují celou ekonomiku: vyšší sazby = dražší půjčky = pomalejší ekonomika.', category: 'ekonomika', articleLink: '/clanky/inflace-jak-se-branit', articleLabel: 'Jak se bránit inflaci' },
+  // V
+  { id: 'venture-capital', term: 'Venture capital (VC)', definition: 'Rizikový kapitál — investice do začínajících, rychle rostoucích firem s vysokým potenciálem i rizikem. VC fondy výměnou za peníze berou podíl ve firmě. Financovaly firmy jako Airbnb, Uber nebo Revolut.', category: 'podnikani' },
+  { id: 'volatilita', term: 'Volatilita', definition: 'Míra kolísání ceny aktiva v čase. Vysoká volatilita = velké výkyvy nahoru i dolů. Bitcoin je mnohonásobně volatilnější než akcie nebo zlato — přináší vyšší výnosy i větší rizika.', category: 'investice', articleLink: '/clanky/bitcoin-proc-si-koupit', articleLabel: 'Bitcoin v roce 2025' },
+  // W
+  { id: 'wallet', term: 'Wallet (Krypto peněženka)', definition: 'Aplikace nebo hardware uchovávající privátní klíče ke kryptoměnám. Kdo má klíče, má mince — "Not your keys, not your coins." Hardware wallet (Ledger, Trezor) = nejbezpečnější úložiště.', category: 'krypto' },
+  // Y
+  { id: 'yield', term: 'Yield (Výnos)', definition: 'Výnos z investice vyjádřený jako procento její hodnoty za rok. Dividendový yield = roční dividenda / cena akcie × 100. Yield 5 % = na každých 100 Kč investice dostaneš 5 Kč ročně.', category: 'investice' },
+  // Z
+  { id: 'zlaty-kriz', term: 'Zlatý kříž', definition: 'Technický signál, kdy krátkodobý klouzavý průměr (50denní) překříží dlouhodobý (200denní) zdola nahoru. Považuje se za býčí signál — naznačuje, že trend se otočil nahoru.', category: 'investice' },
+];
+
+const letters = [...new Set(terms.map(t => t.term[0].toUpperCase()))].sort();
+
+const catConfig = {
+  investice: { label: 'Investice', classes: 'bg-yellow-900/30 text-yellow-400 border-yellow-700/50' },
+  krypto:    { label: 'Krypto',    classes: 'bg-orange-900/30 text-orange-400 border-orange-700/50' },
+  podnikani: { label: 'Podnikání', classes: 'bg-green-900/30 text-green-400 border-green-700/50' },
+  ekonomika: { label: 'Ekonomika', classes: 'bg-blue-900/30 text-blue-400 border-blue-700/50' },
+};
+---
+
+<BaseLayout
+  title="Slovník byznysu"
+  description="Přes 40 finančních pojmů vysvětlených česky a srozumitelně. ETF, DCA, Bitcoin, inflace a mnohem víc."
+>
+
+  <!-- Hero -->
+  <section class="pt-16 pb-10 border-b border-border">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <p class="text-gold-primary text-sm font-semibold uppercase tracking-widest mb-3">Vzdělávání</p>
+      <h1 class="font-display text-5xl md:text-6xl font-bold text-text-primary mb-4">Slovník byznysu</h1>
+      <p class="text-text-secondary text-lg max-w-2xl mb-8">
+        {terms.length} pojmů z oblasti financí, investic, krypta a podnikání. Bez zbytečného žargonu — česky a srozumitelně.
+      </p>
+
+      <!-- Search + filter row -->
+      <div class="flex flex-col sm:flex-row gap-4">
+        <div class="relative flex-1">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input
+            id="search"
+            type="text"
+            placeholder="Hledej pojmy... (ETF, inflace, Bitcoin...)"
+            class="w-full bg-card border border-border rounded-xl pl-11 pr-4 py-3 text-text-primary placeholder-text-secondary focus:outline-none focus:border-gold-primary transition-colors"
+          />
+        </div>
+        <div id="cat-filter" class="flex gap-2 flex-wrap">
+          <button class="cat-btn px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-200" data-cat="all">Vše</button>
+          {Object.entries(catConfig).map(([key, cfg]) => (
+            <button class={`cat-btn px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-200`} data-cat={key}>{cfg.label}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Alphabet nav -->
+  <div class="sticky top-16 z-40 bg-background/95 backdrop-blur border-b border-border py-3">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div id="alpha-nav" class="flex flex-wrap gap-1">
+        {letters.map(l => (
+          <a href={`#letter-${l}`} class="alpha-btn w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold text-text-secondary hover:text-gold-primary hover:bg-card transition-all duration-150" data-letter={l}>
+            {l}
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <!-- Terms -->
+  <section class="py-12">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Count -->
+      <p id="term-count" class="text-text-secondary text-sm mb-8">{terms.length} pojmů</p>
+
+      <!-- Letter groups -->
+      {letters.map(letter => {
+        const group = terms.filter(t => t.term[0].toUpperCase() === letter);
+        return (
+          <div id={`letter-${letter}`} class="letter-group mb-10" data-letter={letter}>
+            <div class="flex items-center gap-4 mb-5">
+              <span class="font-display text-4xl font-bold text-gold-primary w-10 flex-shrink-0">{letter}</span>
+              <div class="flex-1 h-px bg-border"></div>
+            </div>
+            <div class="space-y-4">
+              {group.map(term => (
+                <div
+                  class="term-card bg-card border border-border rounded-xl p-5 hover:border-gold-primary/40 transition-colors duration-200"
+                  id={term.id}
+                  data-category={term.category}
+                  data-searchtext={`${term.term} ${term.definition}`.toLowerCase()}
+                >
+                  <div class="flex flex-wrap items-start gap-3 mb-3">
+                    <h3 class="font-display text-xl font-bold text-gold-primary leading-none">{term.term}</h3>
+                    <span class={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold border ${catConfig[term.category].classes}`}>
+                      {catConfig[term.category].label}
+                    </span>
+                    {term.articleLink && (
+                      <a href={term.articleLink} class="inline-flex items-center gap-1 text-xs text-text-secondary hover:text-gold-primary transition-colors ml-auto">
+                        📄 {term.articleLabel} →
+                      </a>
+                    )}
+                  </div>
+                  <p class="text-text-secondary text-sm leading-relaxed">{term.definition}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+
+      <!-- Empty state -->
+      <div id="empty-state" class="hidden text-center py-20">
+        <div class="text-5xl mb-4">🔍</div>
+        <p class="text-text-secondary text-lg">Žádné pojmy nenalezeny.</p>
+        <p class="text-text-secondary text-sm mt-2">Zkus jiný výraz nebo zruš filtr.</p>
+      </div>
+
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  .cat-btn[data-active="true"] { background-color: #D4AF37; color: #0a0a0a; border-color: #D4AF37; }
+  .cat-btn[data-active="false"] { background-color: transparent; color: #A0A0A0; border-color: #2a2a2a; }
+  .cat-btn[data-active="false"]:hover { border-color: #D4AF37; color: #D4AF37; }
+</style>
+
+<script>
+  const searchInput = document.getElementById('search') as HTMLInputElement;
+  const catBtns = document.querySelectorAll<HTMLButtonElement>('.cat-btn');
+  const termCards = document.querySelectorAll<HTMLElement>('.term-card');
+  const letterGroups = document.querySelectorAll<HTMLElement>('.letter-group');
+  const countEl = document.getElementById('term-count')!;
+  const emptyState = document.getElementById('empty-state')!;
+
+  let activeCat = 'all';
+  let searchQuery = '';
+
+  catBtns.forEach(btn => btn.dataset.active = btn.dataset.cat === 'all' ? 'true' : 'false');
+
+  function filterTerms() {
+    let visible = 0;
+    termCards.forEach(card => {
+      const catMatch = activeCat === 'all' || card.dataset.category === activeCat;
+      const searchText = card.dataset.searchtext || '';
+      const searchMatch = !searchQuery || searchText.includes(searchQuery);
+      const show = catMatch && searchMatch;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    letterGroups.forEach(group => {
+      const hasVisible = [...group.querySelectorAll('.term-card')].some(c => (c as HTMLElement).style.display !== 'none');
+      (group as HTMLElement).style.display = hasVisible ? '' : 'none';
+    });
+
+    countEl.textContent = `${visible} pojmů`;
+    emptyState.classList.toggle('hidden', visible > 0);
+  }
+
+  catBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeCat = btn.dataset.cat!;
+      catBtns.forEach(b => b.dataset.active = b === btn ? 'true' : 'false');
+      filterTerms();
+    });
+  });
+
+  searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value.toLowerCase().trim();
+    filterTerms();
+  });
+</script>

@@ -1,0 +1,129 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allArticles = await getCollection('clanky');
+const articlesJson = JSON.stringify(allArticles.map(a => ({
+  slug: a.slug,
+  title: a.data.title,
+  excerpt: a.data.excerpt,
+  category: a.data.category,
+  date: a.data.date.toISOString().split('T')[0],
+  readTime: a.data.readTime,
+})));
+
+const catLabels: Record<string, string> = {
+  investice: 'Investice', podnikani: 'Podnikání', finance: 'Finance', krypto: 'Krypto',
+};
+const catColors: Record<string, string> = {
+  investice: 'bg-yellow-900/30 text-yellow-400 border-yellow-700/50',
+  podnikani: 'bg-green-900/30 text-green-400 border-green-700/50',
+  finance:   'bg-blue-900/30 text-blue-400 border-blue-700/50',
+  krypto:    'bg-orange-900/30 text-orange-400 border-orange-700/50',
+};
+---
+
+<BaseLayout title="Uložené články" description="Tvoje uložené články z Byznys Denne.">
+
+  <section class="pt-16 pb-10 border-b border-border">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <p class="text-gold-primary text-sm font-semibold uppercase tracking-widest mb-3">Tvůj seznam</p>
+      <h1 class="font-display text-5xl md:text-6xl font-bold text-text-primary mb-4">Uložené články</h1>
+      <p class="text-text-secondary text-lg">Články, které sis uložil/a pro pozdější čtení.</p>
+    </div>
+  </section>
+
+  <section class="py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Loading -->
+      <div id="saved-loading" class="text-center py-12">
+        <div class="text-4xl mb-3 animate-pulse">📚</div>
+        <p class="text-text-secondary">Načítám uložené články...</p>
+      </div>
+
+      <!-- Empty -->
+      <div id="saved-empty" class="hidden text-center py-20">
+        <div class="text-6xl mb-5">🔖</div>
+        <h2 class="font-display text-2xl font-bold text-text-primary mb-3">Zatím nic uloženého</h2>
+        <p class="text-text-secondary mb-8">Ulož si zajímavý článek kliknutím na ikonu záložky.</p>
+        <a href="/clanky" class="btn-gold px-7 py-3">Procházet články →</a>
+      </div>
+
+      <!-- Articles list -->
+      <div id="saved-list" class="hidden space-y-4"></div>
+
+    </div>
+  </section>
+
+</BaseLayout>
+
+<!-- Embed article data for JS -->
+<script type="application/json" id="all-articles-data">{articlesJson}</script>
+
+<script>
+  const allData: { slug: string; title: string; excerpt: string; category: string; date: string; readTime: number }[]
+    = JSON.parse((document.getElementById('all-articles-data') as HTMLScriptElement).text);
+
+  const catLabels: Record<string, string> = {
+    investice: 'Investice', podnikani: 'Podnikání', finance: 'Finance', krypto: 'Krypto',
+  };
+  const catColors: Record<string, string> = {
+    investice: 'bg-yellow-900/30 text-yellow-400 border-yellow-700/50',
+    podnikani: 'bg-green-900/30 text-green-400 border-green-700/50',
+    finance:   'bg-blue-900/30 text-blue-400 border-blue-700/50',
+    krypto:    'bg-orange-900/30 text-orange-400 border-orange-700/50',
+  };
+  const catEmoji: Record<string, string> = {
+    krypto: '₿', investice: '📈', finance: '💰', podnikani: '🚀',
+  };
+
+  const loading = document.getElementById('saved-loading')!;
+  const empty   = document.getElementById('saved-empty')!;
+  const list    = document.getElementById('saved-list')!;
+
+  const savedSlugs: string[] = JSON.parse(localStorage.getItem('savedArticles') || '[]');
+  const saved = allData.filter(a => savedSlugs.includes(a.slug));
+
+  loading.classList.add('hidden');
+
+  if (saved.length === 0) {
+    empty.classList.remove('hidden');
+  } else {
+    list.classList.remove('hidden');
+    list.innerHTML = saved.map(a => {
+      const d = new Date(a.date).toLocaleDateString('cs-CZ', { year: 'numeric', month: 'long', day: 'numeric' });
+      return `
+        <div class="bg-card border border-border rounded-xl p-5 flex gap-5 items-start group hover:border-gold-primary/40 transition-colors">
+          <div class="w-14 h-14 rounded-lg bg-surface flex items-center justify-center text-2xl flex-shrink-0">${catEmoji[a.category] || '📄'}</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold border ${catColors[a.category]}">${catLabels[a.category]}</span>
+              <span class="text-text-secondary text-xs">${a.readTime} min čtení · ${d}</span>
+            </div>
+            <a href="/clanky/${a.slug}" class="font-display text-xl font-bold text-text-primary group-hover:text-gold-primary transition-colors block mb-1">${a.title}</a>
+            <p class="text-text-secondary text-sm leading-relaxed line-clamp-2">${a.excerpt}</p>
+          </div>
+          <button class="remove-saved flex-shrink-0 text-text-secondary hover:text-red-400 transition-colors p-1 mt-0.5" data-slug="${a.slug}" aria-label="Odstranit">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
+        </div>`;
+    }).join('');
+
+    // Remove handler
+    list.querySelectorAll<HTMLButtonElement>('.remove-saved').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const slug = btn.dataset.slug!;
+        const current: string[] = JSON.parse(localStorage.getItem('savedArticles') || '[]');
+        localStorage.setItem('savedArticles', JSON.stringify(current.filter(s => s !== slug)));
+        btn.closest('.bg-card')?.remove();
+        if (!list.querySelector('.bg-card')) {
+          list.classList.add('hidden');
+          empty.classList.remove('hidden');
+        }
+      });
+    });
+  }
+</script>

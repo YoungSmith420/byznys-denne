@@ -1,0 +1,126 @@
+---
+// Globální popup — vložen jednou v BaseLayout
+// Otevírá se přes window.openLeadMagnet() odkudkoliv
+---
+
+<!-- Popup overlay -->
+<div id="lead-popup" class="fixed inset-0 z-[200] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300" aria-modal="true" role="dialog">
+  <!-- Backdrop -->
+  <div id="lead-popup-backdrop" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+
+  <!-- Box -->
+  <div class="relative z-10 w-full max-w-lg bg-card border border-gold-primary/30 rounded-2xl p-8 shadow-[0_0_80px_rgba(212,175,55,0.2)] transform scale-95 transition-transform duration-300" id="lead-popup-box">
+
+    <!-- Close -->
+    <button id="lead-popup-close" class="absolute top-4 right-4 text-text-secondary hover:text-text-primary transition-colors p-1" aria-label="Zavřít">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <!-- Success state (hidden by default) -->
+    <div id="lead-popup-success" class="hidden text-center py-4">
+      <div class="text-5xl mb-4">🎉</div>
+      <h3 class="font-display text-2xl font-bold text-text-primary mb-2">Díky! Průvodce ti přijde na email.</h3>
+      <p class="text-text-secondary text-sm">Sleduj taky Instagram <a href="https://instagram.com/byznysdenne" target="_blank" class="text-gold-primary hover:text-gold-light">@byznysdenne</a> pro denní tipy.</p>
+      <button id="lead-popup-success-close" class="btn-gold mt-6 px-6 py-3 text-sm">Zavřít</button>
+    </div>
+
+    <!-- Form state -->
+    <div id="lead-popup-form-content">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-12 h-12 rounded-full bg-gold-primary/10 border border-gold-primary/30 flex items-center justify-center text-2xl flex-shrink-0">📘</div>
+        <div>
+          <div class="text-gold-primary text-xs font-semibold uppercase tracking-wider">Zdarma ke stažení</div>
+          <div class="text-text-secondary text-xs mt-0.5">Okamžitě do emailu</div>
+        </div>
+      </div>
+
+      <h2 class="font-display text-2xl md:text-3xl font-bold text-text-primary mb-3 leading-tight">
+        5 chyb které dělají<br/>
+        <span class="text-gold-primary">začínající investoři</span>
+      </h2>
+      <p class="text-text-secondary text-sm leading-relaxed mb-6">
+        A jak se jim vyhnout. Praktický průvodce pro každého, kdo začíná investovat — zdarma, žádný spam.
+      </p>
+
+      <form id="lead-popup-form" class="space-y-3">
+        <input type="email" placeholder="tvuj@email.cz" required
+          class="w-full bg-surface border border-border rounded-xl px-4 py-3 text-text-primary placeholder-text-secondary focus:outline-none focus:border-gold-primary transition-colors text-sm"/>
+        <button type="submit" class="btn-gold w-full py-3.5 text-base font-bold">
+          Chci průvodce zdarma →
+        </button>
+      </form>
+
+      <p class="text-text-secondary text-xs text-center mt-3">
+        Žádný spam. Odhlásit se můžeš kdykoliv jedním klikem.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const popup    = document.getElementById('lead-popup')!;
+  const box      = document.getElementById('lead-popup-box')!;
+  const backdrop = document.getElementById('lead-popup-backdrop')!;
+  const closeBtn = document.getElementById('lead-popup-close')!;
+  const form     = document.getElementById('lead-popup-form') as HTMLFormElement;
+  const success  = document.getElementById('lead-popup-success')!;
+  const formContent = document.getElementById('lead-popup-form-content')!;
+  const successClose = document.getElementById('lead-popup-success-close')!;
+
+  const STORAGE_KEY = 'leadPopupDismissedAt';
+  const DISMISS_DAYS = 7;
+
+  function shouldShow(): boolean {
+    const val = localStorage.getItem(STORAGE_KEY);
+    if (!val) return true;
+    const days = (Date.now() - parseInt(val)) / 86400000;
+    return days > DISMISS_DAYS;
+  }
+
+  function open() {
+    popup.classList.remove('opacity-0','pointer-events-none');
+    box.classList.remove('scale-95');
+    box.classList.add('scale-100');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function close() {
+    popup.classList.add('opacity-0','pointer-events-none');
+    box.classList.remove('scale-100');
+    box.classList.add('scale-95');
+    document.body.style.overflow = '';
+    localStorage.setItem(STORAGE_KEY, Date.now().toString());
+  }
+
+  // Global trigger
+  (window as any).openLeadMagnet = () => { if (shouldShow()) open(); };
+
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+  successClose.addEventListener('click', close);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = (form.querySelector('input[type="email"]') as HTMLInputElement).value;
+    const existing = JSON.parse(localStorage.getItem('leadEmails') || '[]');
+    if (!existing.includes(email)) {
+      existing.push(email);
+      localStorage.setItem('leadEmails', JSON.stringify(existing));
+    }
+    localStorage.setItem('leadCaptured', '1');
+    formContent.classList.add('hidden');
+    success.classList.remove('hidden');
+  });
+
+  // Exit intent
+  let shown = false;
+  document.addEventListener('mouseleave', (e) => {
+    if (e.clientY < 5 && !shown && shouldShow()) {
+      shown = true;
+      setTimeout(open, 300);
+    }
+  });
+</script>

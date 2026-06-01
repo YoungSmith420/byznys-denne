@@ -1,0 +1,145 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LeadMagnetBlock from '../components/LeadMagnetBlock.astro';
+
+const steps = [
+  {
+    num: '01',
+    icon: '💸',
+    title: 'Nejdřív pochop inflaci',
+    desc: 'Peníze na spořicím účtu tiše ztrácí hodnotu. Pochop proč — a co s tím.',
+    cta: 'Číst článek →',
+    href: '/clanky/inflace-jak-se-branit',
+    tag: 'Finance · 5 min',
+  },
+  {
+    num: '02',
+    icon: '📈',
+    title: 'Jak začít investovat s málem',
+    desc: 'S investováním nezačneš až budeš mít statisíce. Začneš teď, s tím co máš.',
+    cta: 'Číst článek →',
+    href: '/clanky/jak-zacit-investovat',
+    tag: 'Investice · 6 min',
+  },
+  {
+    num: '03',
+    icon: '📊',
+    title: 'Spočítej si svůj potenciál',
+    desc: 'Vidíš, jak tvé peníze porostou za 10, 20 nebo 40 let díky složenému úroku.',
+    cta: 'Otevřít kalkulačku →',
+    href: '/kalkulacka',
+    tag: 'Nástroj · interaktivní',
+  },
+  {
+    num: '04',
+    icon: '🌡️',
+    title: 'Sleduj náladu trhu',
+    desc: 'Naučit se investovat neznamená jen číst — znamená sledovat, co se děje.',
+    cta: 'Zobrazit index →',
+    href: '/index-trhu',
+    tag: 'Index · týdenní update',
+  },
+];
+
+const bonusLinks = [
+  { href: '/clanky/bitcoin-proc-si-koupit', label: 'Bitcoin v roce 2025', cat: 'Krypto' },
+  { href: '/clanky/side-hustle-napady', label: '5 side hustles v Česku', cat: 'Podnikání' },
+  { href: '/slovnik', label: 'Slovník finančních pojmů', cat: 'Vzdělávání' },
+];
+---
+
+<BaseLayout
+  title="Začátečník? Začni zde"
+  description="Kurátorovaný learning path pro každého, kdo začíná s investováním. 4 kroky, jasná cesta."
+>
+
+  <!-- Hero -->
+  <section class="pt-16 pb-16 border-b border-border relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gold-primary/4 rounded-full blur-3xl"></div>
+    </div>
+    <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="inline-block px-4 py-2 bg-gold-primary/10 border border-gold-primary/30 rounded-full text-gold-primary text-sm font-semibold mb-6">
+        🎓 Začínáš s investováním?
+      </div>
+      <h1 class="font-display text-5xl md:text-6xl font-bold text-text-primary mb-5 leading-tight">
+        Začni tady.<br/>
+        <span class="text-gold-primary">Krok za krokem.</span>
+      </h1>
+      <p class="text-text-secondary text-xl leading-relaxed max-w-xl mx-auto">
+        Vybrali jsme 4 kroky, které tě dovedou od "nevím nic" k "investuji s přehledem". Žádný bullshit, jen to co fakt funguje.
+      </p>
+    </div>
+  </section>
+
+  <!-- Learning path -->
+  <section class="py-20">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="space-y-6">
+        {steps.map((step, i) => (
+          <a
+            href={step.href}
+            class="group flex gap-6 bg-card border border-border rounded-2xl p-7 card-hover relative overflow-hidden"
+          >
+            <!-- Connector line -->
+            {i < steps.length - 1 && (
+              <div class="absolute left-[3.25rem] top-[calc(100%+0px)] w-px h-6 bg-border z-10 hidden sm:block"></div>
+            )}
+
+            <!-- Number -->
+            <div class="flex-shrink-0">
+              <div class="w-14 h-14 rounded-2xl bg-gold-primary/10 border border-gold-primary/30 flex flex-col items-center justify-center group-hover:bg-gold-primary/20 transition-colors duration-200">
+                <span class="font-display text-gold-primary text-xs font-bold">{step.num}</span>
+                <span class="text-2xl">{step.icon}</span>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-3 mb-2">
+                <h2 class="font-display text-2xl font-bold text-text-primary group-hover:text-gold-primary transition-colors duration-200">
+                  {step.title}
+                </h2>
+                <span class="text-text-secondary text-xs bg-surface border border-border px-2.5 py-0.5 rounded-full">{step.tag}</span>
+              </div>
+              <p class="text-text-secondary leading-relaxed mb-4">{step.desc}</p>
+              <span class="text-gold-primary text-sm font-semibold group-hover:text-gold-light transition-colors">
+                {step.cta}
+              </span>
+            </div>
+
+            <!-- Arrow -->
+            <div class="flex-shrink-0 self-center text-text-secondary group-hover:text-gold-primary transition-colors ml-auto">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Bonus -->
+  <section class="py-12 bg-surface border-t border-border">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="font-display text-2xl font-bold text-text-primary mb-6">Doporučujeme taky</h2>
+      <div class="grid sm:grid-cols-3 gap-4">
+        {bonusLinks.map(link => (
+          <a href={link.href} class="group bg-card border border-border rounded-xl p-4 hover:border-gold-primary/40 transition-colors">
+            <div class="text-text-secondary text-xs mb-1">{link.cat}</div>
+            <div class="text-text-primary text-sm font-semibold group-hover:text-gold-primary transition-colors">{link.label} →</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Email CTA -->
+  <section class="py-20">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      <LeadMagnetBlock variant="footer-cta" />
+    </div>
+  </section>
+
+</BaseLayout>

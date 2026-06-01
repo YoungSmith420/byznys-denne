@@ -1,0 +1,127 @@
+---
+import Navigation from '../components/Navigation.astro';
+import Footer from '../components/Footer.astro';
+import LeadMagnetPopup from '../components/LeadMagnetPopup.astro';
+import StickyMobileCTA from '../components/StickyMobileCTA.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  publishedDate?: string;
+}
+
+const {
+  title,
+  description = 'Finance, investice a podnikání — bez zbytečných keců.',
+  image = '/og-default.png',
+  type = 'website',
+  publishedDate,
+} = Astro.props;
+
+const siteUrl = 'https://byznysdenne.cz';
+const fullTitle = title === 'Byznys Denne' ? title : `${title} | Byznys Denne`;
+const canonicalUrl = `${siteUrl}${Astro.url.pathname}`;
+
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      "url": siteUrl,
+      "name": "Byznys Denne",
+      "description": "Finance, investice a podnikání — bez zbytečných keců.",
+      "inLanguage": "cs",
+    },
+    {
+      "@type": "Organization",
+      "@id": `${siteUrl}/#organization`,
+      "name": "Byznys Denne",
+      "url": siteUrl,
+      "sameAs": ["https://www.instagram.com/byznysdenne/"],
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#D4AF37" />
+
+    <!-- Hreflang -->
+    <link rel="alternate" hreflang="cs" href={canonicalUrl} />
+    <link rel="alternate" hreflang="x-default" href={canonicalUrl} />
+
+    <!-- OG -->
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={`${siteUrl}${image}`} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content="Byznys Denne" />
+    <meta property="og:locale" content="cs_CZ" />
+    {publishedDate && <meta property="article:published_time" content={publishedDate} />}
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}${image}`} />
+
+    <title>{fullTitle}</title>
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Fonts (display=swap = font-display: swap) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- WebSite + Organization JSON-LD (every page) -->
+    <script type="application/ld+json" set:html={JSON.stringify(orgJsonLd)} />
+
+    {type === 'article' && (
+      <script type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": title,
+        "description": description,
+        "url": canonicalUrl,
+        "datePublished": publishedDate,
+        "inLanguage": "cs",
+        "author": {
+          "@type": "Organization",
+          "name": "Byzák & tým Byznys Denne",
+          "@id": `${siteUrl}/#organization`,
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Byznys Denne",
+          "url": siteUrl,
+          "@id": `${siteUrl}/#organization`,
+        },
+      })} />
+    )}
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <Navigation />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+    <!-- Global popup + sticky mobile CTA -->
+    <LeadMagnetPopup />
+    <StickyMobileCTA />
+  </body>
+</html>

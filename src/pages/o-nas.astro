@@ -1,0 +1,155 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allArticles = await getCollection('clanky');
+---
+
+<BaseLayout
+  title="O nás"
+  description="Kdo stojí za Byznys Denne? Poznejte Byzáka a tým, který dělá finance přístupnými pro každého."
+>
+
+  <!-- Hero -->
+  <section class="pt-16 pb-20 border-b border-border relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gold-primary/5 rounded-full blur-3xl"></div>
+    </div>
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p class="text-gold-primary text-sm font-semibold uppercase tracking-widest mb-4">Kdo jsme?</p>
+      <h1 class="font-display text-5xl sm:text-6xl md:text-7xl font-bold text-text-primary mb-6 leading-tight">
+        Tady je <span class="text-gold-primary">Byznys Denne.</span>
+      </h1>
+      <p class="text-text-secondary text-xl leading-relaxed max-w-2xl mx-auto">
+        Platforma, která dělá finance a podnikání přístupnými pro každého. Bez žargonu, bez patosu — rovnou k věci.
+      </p>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="py-16 bg-surface border-b border-border">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
+        <div class="p-6 bg-card border border-border rounded-xl">
+          <div class="font-display text-4xl font-bold text-gold-primary mb-1">10K+</div>
+          <div class="text-text-secondary text-sm">sledujících</div>
+        </div>
+        <div class="p-6 bg-card border border-border rounded-xl">
+          <div class="font-display text-4xl font-bold text-gold-primary mb-1">{allArticles.length}+</div>
+          <div class="text-text-secondary text-sm">článků</div>
+        </div>
+        <div class="p-6 bg-card border border-border rounded-xl">
+          <div class="font-display text-4xl font-bold text-gold-primary mb-1">2×</div>
+          <div class="text-text-secondary text-sm">týdně nový obsah</div>
+        </div>
+        <div class="p-6 bg-card border border-border rounded-xl">
+          <div class="font-display text-4xl font-bold text-gold-primary mb-1">3</div>
+          <div class="text-text-secondary text-sm">roky aktivně</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Story -->
+  <section class="py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-2 gap-16 items-start">
+        <div>
+          <h2 class="font-display text-3xl font-bold text-text-primary mb-6">
+            Jak to začalo
+          </h2>
+          <div class="space-y-4 text-text-secondary leading-relaxed">
+            <p>
+              Byznys Denne vznikl z jednoduché frustrace: finance se vždy prezentovaly jako věc „odborníků". Plná složitých termínů, nedostupných rad a skrytých zájmů.
+            </p>
+            <p>
+              Uvěřili jsme, že tohle nemusí být pravda. Každý, kdo chce, může pochopit, jak fungují peníze — a co víc, jak je nechat pracovat pro sebe.
+            </p>
+            <p>
+              Začali jsme na Instagramu. Krátké, jasné posty o inflaci, investicích, Bitcoinu a podnikání. Komunita rostla. Přidali jsme články. Pak podcast. Pak workshopy.
+            </p>
+            <p>
+              Dnes Byznys Denne čte přes 10 000 lidí. A pořád víříme stejné přesvědčení: <strong class="text-text-primary">finanční vzdělávání není privilegium, je to základní dovednost.</strong>
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="font-display text-3xl font-bold text-text-primary mb-6">
+            Naše hodnoty
+          </h2>
+          <div class="space-y-4">
+            {[
+              { icon: '🎯', title: 'Přímost', text: 'Říkáme věci jak jsou. Bez okolků, bez přikrašlování.' },
+              { icon: '🧠', title: 'Vzdělávání', text: 'Chceme, aby náš obsah lidem skutečně pomohl — ne aby vypadal dobře.' },
+              { icon: '😄', title: 'Humor', text: 'Finance nemusí být nudné. Vážně se bereme jen tehdy, kdy je třeba.' },
+              { icon: '🤝', title: 'Komunita', text: 'Byznys Denne jsou lidi, kteří se chtějí zlepšovat. My jsme tu s nimi.' },
+            ].map(v => (
+              <div class="flex items-start gap-4 p-4 bg-card border border-border rounded-xl hover:border-gold-primary/30 transition-colors duration-200">
+                <span class="text-2xl flex-shrink-0">{v.icon}</span>
+                <div>
+                  <div class="text-text-primary font-semibold mb-1">{v.title}</div>
+                  <div class="text-text-secondary text-sm leading-relaxed">{v.text}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Byzák section -->
+  <section class="py-20 bg-surface border-t border-border">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="relative inline-block mb-8">
+        <div class="w-48 h-48 mx-auto bg-card border-2 border-gold-primary/20 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(212,175,55,0.1)] hover:shadow-[0_0_80px_rgba(212,175,55,0.2)] transition-all duration-500">
+          <span class="text-8xl">🐂</span>
+        </div>
+        <div class="absolute -top-2 -right-2 w-8 h-8 bg-gold-primary rounded-full flex items-center justify-center text-sm">
+          ₿
+        </div>
+      </div>
+
+      <h2 class="font-display text-4xl font-bold text-text-primary mb-4">
+        Poznaj <span class="text-gold-primary">Byzáka</span>
+      </h2>
+      <p class="text-text-secondary text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
+        Byzák je náš maskot — býk v černém obleku, se zlatou kravatou a Bitcoin pinem na klopě. Reprezentuje sílu, přímočarost a trochu provokace. Tak jako dobrý byznys.
+      </p>
+      <div class="flex flex-wrap gap-3 justify-center text-sm text-text-secondary">
+        <span class="px-3 py-1 bg-card border border-border rounded-full">🖤 Černý oblek</span>
+        <span class="px-3 py-1 bg-card border border-border rounded-full">💛 Zlatá kravata</span>
+        <span class="px-3 py-1 bg-card border border-border rounded-full">₿ Bitcoin pin</span>
+        <span class="px-3 py-1 bg-card border border-border rounded-full">💚 Zelené oči</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="font-display text-4xl font-bold text-text-primary mb-4">
+        Baví tě to? Sleduj nás.
+      </h2>
+      <p class="text-text-secondary text-lg mb-8">
+        Každý týden nový obsah. Články, tipy, pohled na trhy.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a
+          href="https://instagram.com/byznysdenne"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-gold px-8 py-4"
+        >
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+          @byznysdenne
+        </a>
+        <a href="/clanky" class="btn-outline px-8 py-4">Procházet články →</a>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>

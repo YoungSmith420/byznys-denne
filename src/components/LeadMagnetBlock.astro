@@ -1,0 +1,105 @@
+---
+// Varianty: "hero" (homepage), "inline" (v článku), "sidebar" (postranní panel), "footer-cta" (sekce na konci stránky)
+interface Props {
+  variant?: 'hero' | 'inline' | 'sidebar' | 'footer-cta';
+}
+const { variant = 'inline' } = Astro.props;
+---
+
+{variant === 'hero' && (
+  <div class="w-full max-w-xl mx-auto">
+    <div class="flex items-center gap-3 mb-5 justify-center">
+      <div class="w-10 h-10 rounded-full bg-gold-primary/15 border border-gold-primary/40 flex items-center justify-center text-xl">📘</div>
+      <span class="text-gold-primary text-sm font-semibold">Zdarma ke stažení · Okamžitě do emailu</span>
+    </div>
+    <h2 class="font-display text-3xl md:text-4xl font-bold text-text-primary text-center mb-3 leading-tight">
+      5 chyb začínajících investorů<br/>
+      <span class="text-gold-primary">(a jak se jim vyhnout)</span>
+    </h2>
+    <p class="text-text-secondary text-center mb-7">Praktický průvodce pro každého, kdo začíná investovat.</p>
+    <form class="lm-form flex flex-col sm:flex-row gap-3">
+      <input type="email" placeholder="tvuj@email.cz" required
+        class="flex-1 bg-card border border-border rounded-xl px-5 py-4 text-text-primary placeholder-text-secondary focus:outline-none focus:border-gold-primary transition-colors"/>
+      <button type="submit" class="btn-gold px-7 py-4 text-base font-bold whitespace-nowrap">
+        Chci průvodce zdarma →
+      </button>
+    </form>
+    <p class="text-text-secondary text-xs text-center mt-3">Žádný spam. Odhlásit se můžeš kdykoliv.</p>
+    <div class="lm-success hidden text-center mt-6 p-4 bg-accent-green/10 border border-accent-green/30 rounded-xl">
+      <p class="text-accent-green font-semibold">🎉 Díky! Průvodce ti přijde na email.</p>
+    </div>
+  </div>
+)}
+
+{variant === 'inline' && (
+  <div class="my-8 bg-card border-l-4 border-l-gold-primary border border-border rounded-r-xl p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+      <div class="flex-1">
+        <div class="text-gold-primary text-xs font-bold uppercase tracking-wider mb-1">📘 Zdarma</div>
+        <p class="text-text-primary font-semibold text-sm">5 chyb začínajících investorů — stáhni průvodce</p>
+      </div>
+      <button type="button" class="lm-inline-btn btn-gold px-5 py-2.5 text-sm whitespace-nowrap flex-shrink-0">
+        Chci průvodce →
+      </button>
+    </div>
+  </div>
+)}
+
+{variant === 'sidebar' && (
+  <div class="bg-card border border-gold-primary/20 rounded-xl p-5">
+    <div class="text-2xl mb-3 text-center">📘</div>
+    <h3 class="font-display text-lg font-bold text-text-primary mb-1 text-center">Průvodce zdarma</h3>
+    <p class="text-text-secondary text-xs text-center mb-4">5 chyb začínajících investorů a jak se jim vyhnout.</p>
+    <form class="lm-form space-y-2">
+      <input type="email" placeholder="tvuj@email.cz" required
+        class="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-text-primary placeholder-text-secondary focus:outline-none focus:border-gold-primary transition-colors text-sm"/>
+      <button type="submit" class="btn-gold w-full py-2.5 text-sm font-bold">Chci průvodce →</button>
+    </form>
+    <div class="lm-success hidden text-center mt-3">
+      <p class="text-accent-green text-xs font-semibold">🎉 Díky! Průvodce ti přijde na email.</p>
+    </div>
+    <p class="text-text-secondary text-xs text-center mt-2">Žádný spam.</p>
+  </div>
+)}
+
+{variant === 'footer-cta' && (
+  <div class="text-center max-w-xl mx-auto">
+    <div class="text-5xl mb-4">📘</div>
+    <h2 class="font-display text-3xl md:text-4xl font-bold text-text-primary mb-3">
+      Buď první, kdo ví.
+    </h2>
+    <p class="text-text-secondary text-lg mb-8">
+      Stáhni zdarma průvodce pro začínající investory — a dostávej nové články přímo do emailu.
+    </p>
+    <form class="lm-form flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+      <input type="email" placeholder="tvuj@email.cz" required
+        class="flex-1 bg-card border border-border rounded-xl px-5 py-4 text-text-primary placeholder-text-secondary focus:outline-none focus:border-gold-primary transition-colors"/>
+      <button type="submit" class="btn-gold px-7 py-4 font-bold whitespace-nowrap">Odebírat →</button>
+    </form>
+    <div class="lm-success hidden text-center mt-4">
+      <p class="text-accent-green font-semibold">🎉 Díky! Průvodce ti přijde na email.</p>
+    </div>
+    <p class="text-text-secondary text-xs mt-3">Žádný spam. Odhlásit se můžeš kdykoliv jedním klikem.</p>
+  </div>
+)}
+
+<script>
+  // Inline button → open global popup
+  document.querySelectorAll('.lm-inline-btn').forEach(btn => {
+    btn.addEventListener('click', () => { (window as any).openLeadMagnet?.(); });
+  });
+
+  // Standalone forms (hero, sidebar, footer-cta)
+  document.querySelectorAll('.lm-form').forEach(form => {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const f = e.target as HTMLFormElement;
+      const email = (f.querySelector('input[type="email"]') as HTMLInputElement).value;
+      const existing = JSON.parse(localStorage.getItem('leadEmails') || '[]');
+      if (!existing.includes(email)) { existing.push(email); localStorage.setItem('leadEmails', JSON.stringify(existing)); }
+      localStorage.setItem('leadCaptured', '1');
+      f.classList.add('hidden');
+      (f.nextElementSibling as HTMLElement)?.classList.remove('hidden');
+    });
+  });
+</script>

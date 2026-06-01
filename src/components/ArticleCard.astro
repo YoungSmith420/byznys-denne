@@ -1,0 +1,56 @@
+---
+import CategoryBadge from './CategoryBadge.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  article: CollectionEntry<'clanky'>;
+}
+
+const { article } = Astro.props;
+const { title, excerpt, category, date, readTime } = article.data;
+
+const formattedDate = date.toLocaleDateString('cs-CZ', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const emoji = {
+  krypto: '₿',
+  investice: '📈',
+  finance: '💰',
+  podnikani: '🚀',
+}[category];
+---
+
+<a
+  href={`/clanky/${article.slug}`}
+  class="group flex flex-col bg-card border border-border rounded-xl overflow-hidden card-hover"
+  data-article-category={category}
+>
+  <div class="h-44 bg-surface flex items-center justify-center border-b border-border">
+    <span class="text-6xl opacity-60 group-hover:opacity-100 transition-opacity duration-300 group-hover:scale-110 inline-block transition-transform">{emoji}</span>
+  </div>
+
+  <div class="flex flex-col flex-1 p-6">
+    <div class="flex items-center gap-3 mb-3">
+      <CategoryBadge category={category} />
+      <span class="text-text-secondary text-xs">{readTime} min čtení</span>
+    </div>
+
+    <h3 class="font-display text-xl font-bold text-text-primary mb-2 group-hover:text-gold-primary transition-colors duration-200 leading-snug">
+      {title}
+    </h3>
+
+    <p class="text-text-secondary text-sm leading-relaxed flex-1 mb-4">
+      {excerpt}
+    </p>
+
+    <div class="flex items-center justify-between pt-4 border-t border-border">
+      <span class="text-text-secondary text-xs">{formattedDate}</span>
+      <span class="text-gold-primary text-sm font-semibold group-hover:text-gold-light transition-colors duration-200">
+        Číst →
+      </span>
+    </div>
+  </div>
+</a>
