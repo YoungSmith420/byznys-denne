@@ -19,6 +19,7 @@ export default {
         'text-primary': withVar('--color-text-primary'),
         'text-secondary': withVar('--color-text-secondary'),
         'accent-green': withVar('--color-accent-green'),
+        'chart-blue': withVar('--color-chart-blue'),
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

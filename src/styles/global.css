@@ -19,6 +19,7 @@
   --color-text-primary: 245 245 245;
   --color-text-secondary: 160 160 160;
   --color-accent-green: 34 197 94;
+  --color-chart-blue: 30 58 95;
   --color-shadow: 0 0 0;
   color-scheme: dark;
 }
@@ -33,6 +34,7 @@
   --color-text-primary: 23 23 23;
   --color-text-secondary: 90 90 90;
   --color-accent-green: 22 163 74;
+  --color-chart-blue: 59 130 246;
   --color-shadow: 100 90 60;
   color-scheme: light;
 }
@@ -159,6 +161,54 @@
 
   .theme-toggle:hover {
     background: rgb(var(--color-gold-primary) / 0.08);
+  }
+
+  /* ---- Calculator range sliders (theme-aware) ---- */
+  .calc-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    background: rgb(var(--color-border));
+  }
+
+  .calc-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgb(var(--color-gold-primary));
+    cursor: pointer;
+    box-shadow: 0 0 12px rgb(var(--color-gold-primary) / 0.5);
+    border: 3px solid rgb(var(--color-background));
+    transition: box-shadow 0.2s;
+  }
+
+  .calc-slider::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 20px rgb(var(--color-gold-primary) / 0.7);
+  }
+
+  .calc-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgb(var(--color-gold-primary));
+    cursor: pointer;
+    border: 3px solid rgb(var(--color-background));
+  }
+
+  /* ---- Calculator mode toggle buttons ---- */
+  .mode-btn {
+    color: rgb(var(--color-text-secondary));
+  }
+
+  .mode-btn.active {
+    background: rgb(var(--color-gold-primary));
+    color: rgb(var(--color-background));
   }
 }
 

@@ -209,46 +209,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 </BaseLayout>
 
-<style>
-  .calc-slider {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 6px;
-    border-radius: 3px;
-    outline: none;
-    cursor: pointer;
-    background: #2a2a2a;
-  }
-  .calc-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: #D4AF37;
-    cursor: pointer;
-    box-shadow: 0 0 12px rgba(212, 175, 55, 0.5);
-    border: 3px solid #0a0a0a;
-    transition: box-shadow 0.2s;
-  }
-  .calc-slider::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.7);
-  }
-  .calc-slider::-moz-range-thumb {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: #D4AF37;
-    cursor: pointer;
-    border: 3px solid #0a0a0a;
-  }
-  .mode-btn.active {
-    background: #D4AF37;
-    color: #0a0a0a;
-  }
-</style>
-
 <script>
   // ── Helpers ────────────────────────────────────────────────────────────────
   const fmtKc = (n: number) =>
@@ -312,7 +272,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   function updateSlider(el: HTMLInputElement) {
     const min = +el.min, max = +el.max, val = +el.value;
     const pct = ((val - min) / (max - min)) * 100;
-    el.style.background = `linear-gradient(to right, #D4AF37 ${pct}%, #2a2a2a ${pct}%)`;
+    const s = getComputedStyle(document.documentElement);
+    const gold = `rgb(${s.getPropertyValue('--color-gold-primary').trim()})`;
+    const track = `rgb(${s.getPropertyValue('--color-border').trim()})`;
+    el.style.background = `linear-gradient(to right, ${gold} ${pct}%, ${track} ${pct}%)`;
   }
 
   // ── Stav ──────────────────────────────────────────────────────────────────
@@ -377,4 +340,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   updateSlider(slHruba);
   updateSlider(slCista);
   runCalc();
+
+  // Re-render sliders when the theme changes
+  new MutationObserver(() => {
+    updateSlider(slHruba);
+    updateSlider(slCista);
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 </script>
