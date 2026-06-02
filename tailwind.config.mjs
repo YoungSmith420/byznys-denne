@@ -1,60 +1,81 @@
 /** @type {import('tailwindcss').Config} */
+
+// Helper: reference a CSS variable as an RGB channel triplet so that
+// Tailwind opacity modifiers (e.g. bg-gold-primary/30) keep working.
+const withVar = (name) => `rgb(var(${name}) / <alpha-value>)`;
+
 export default {
   content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+  darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
-        background: '#0a0a0a',
-        surface: '#111111',
-        card: '#1a1a1a',
-        border: '#2a2a2a',
-        'gold-primary': '#D4AF37',
-        'gold-light': '#F0CC5A',
-        'text-primary': '#F5F5F5',
-        'text-secondary': '#A0A0A0',
-        'accent-green': '#22c55e',
+        background: withVar('--color-background'),
+        surface: withVar('--color-surface'),
+        card: withVar('--color-card'),
+        border: withVar('--color-border'),
+        'gold-primary': withVar('--color-gold-primary'),
+        'gold-light': withVar('--color-gold-light'),
+        'text-primary': withVar('--color-text-primary'),
+        'text-secondary': withVar('--color-text-secondary'),
+        'accent-green': withVar('--color-accent-green'),
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Oswald', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        gold: '0 8px 32px -8px rgb(var(--color-gold-primary) / 0.35)',
+        'gold-lg': '0 0 40px -4px rgb(var(--color-gold-primary) / 0.25), 0 12px 40px -8px rgb(0 0 0 / 0.45)',
+        soft: '0 4px 24px -6px rgb(var(--color-shadow) / 0.5)',
       },
       animation: {
         shimmer: 'shimmer 5s ease-in-out infinite',
+        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+        float: 'float 6s ease-in-out infinite',
       },
       keyframes: {
         shimmer: {
           '0%, 100%': { backgroundPosition: '0% 50%' },
           '50%': { backgroundPosition: '100% 50%' },
         },
+        fadeInUp: {
+          from: { opacity: '0', transform: 'translateY(24px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-12px)' },
+        },
       },
       typography: {
         DEFAULT: {
           css: {
-            color: '#A0A0A0',
+            color: 'rgb(var(--color-text-secondary))',
             maxWidth: 'none',
             'h1, h2, h3, h4': {
-              color: '#F5F5F5',
-              fontFamily: '"Oswald", sans-serif',
+              color: 'rgb(var(--color-text-primary))',
+              fontFamily: '"Plus Jakarta Sans", Inter, sans-serif',
               fontWeight: '700',
             },
             h2: { marginTop: '2rem', marginBottom: '1rem' },
             h3: { marginTop: '1.5rem', marginBottom: '0.75rem' },
             a: {
-              color: '#D4AF37',
+              color: 'rgb(var(--color-gold-primary))',
               textDecoration: 'none',
-              '&:hover': { color: '#F0CC5A' },
+              '&:hover': { color: 'rgb(var(--color-gold-light))' },
             },
-            strong: { color: '#F5F5F5', fontWeight: '600' },
+            strong: { color: 'rgb(var(--color-text-primary))', fontWeight: '600' },
             blockquote: {
-              borderLeftColor: '#D4AF37',
+              borderLeftColor: 'rgb(var(--color-gold-primary))',
               borderLeftWidth: '4px',
-              color: '#A0A0A0',
+              color: 'rgb(var(--color-text-secondary))',
               fontStyle: 'italic',
               paddingLeft: '1.5rem',
             },
             code: {
-              color: '#D4AF37',
-              backgroundColor: '#1a1a1a',
+              color: 'rgb(var(--color-gold-primary))',
+              backgroundColor: 'rgb(var(--color-card))',
               borderRadius: '4px',
               padding: '2px 6px',
               fontWeight: '400',
@@ -62,13 +83,13 @@ export default {
             'code::before': { content: '""' },
             'code::after': { content: '""' },
             pre: {
-              backgroundColor: '#1a1a1a',
-              border: '1px solid #2a2a2a',
+              backgroundColor: 'rgb(var(--color-card))',
+              border: '1px solid rgb(var(--color-border))',
             },
-            hr: { borderColor: '#2a2a2a' },
-            li: { color: '#A0A0A0', marginTop: '0.375rem', marginBottom: '0.375rem' },
-            'ul > li::marker': { color: '#D4AF37' },
-            'ol > li::marker': { color: '#D4AF37' },
+            hr: { borderColor: 'rgb(var(--color-border))' },
+            li: { color: 'rgb(var(--color-text-secondary))', marginTop: '0.375rem', marginBottom: '0.375rem' },
+            'ul > li::marker': { color: 'rgb(var(--color-gold-primary))' },
+            'ol > li::marker': { color: 'rgb(var(--color-gold-primary))' },
             p: { lineHeight: '1.8' },
           },
         },

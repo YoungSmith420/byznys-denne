@@ -53,12 +53,12 @@ const featuredArticles = allArticles
       <!-- Stats -->
       <div class="mt-20 pt-10 border-t border-border grid grid-cols-3 gap-8 max-w-lg mx-auto">
         {[
-          { value: '12 000+', label: 'sledujících' },
-          { value: '50+', label: 'článků' },
-          { value: '2×', label: 'týdně nový obsah' },
+          { count: '12000', suffix: '+', label: 'sledujících' },
+          { count: '50', suffix: '+', label: 'článků' },
+          { count: '2', suffix: '×', label: 'týdně nový obsah' },
         ].map(s => (
           <div class="text-center">
-            <div class="font-display text-3xl font-bold text-gold-primary">{s.value}</div>
+            <div class="font-display text-3xl font-bold text-gold-primary" data-counter={s.count} data-suffix={s.suffix}>0</div>
             <div class="text-text-secondary text-xs mt-1">{s.label}</div>
           </div>
         ))}
@@ -71,13 +71,13 @@ const featuredArticles = allArticles
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-3 gap-8 text-center">
         {[
-          { value: '12 000+', label: 'sledujících na Instagramu', icon: '📸' },
-          { value: '4×', label: 'nové články každý týden', icon: '✍️' },
-          { value: '100%', label: 'zdarma navždy', icon: '🎁' },
-        ].map(s => (
-          <div class="group">
+          { count: '12000', suffix: '+', label: 'sledujících na Instagramu', icon: '📸' },
+          { count: '4', suffix: '×', label: 'nové články každý týden', icon: '✍️' },
+          { count: '100', suffix: '%', label: 'zdarma navždy', icon: '🎁' },
+        ].map((s, i) => (
+          <div class={`group reveal reveal-delay-${i + 1}`}>
             <div class="text-3xl mb-2">{s.icon}</div>
-            <div class="font-display text-3xl md:text-4xl font-bold text-gold-primary mb-1">{s.value}</div>
+            <div class="font-display text-3xl md:text-4xl font-bold text-gold-primary mb-1" data-counter={s.count} data-suffix={s.suffix}>0</div>
             <div class="text-text-secondary text-xs md:text-sm leading-snug">{s.label}</div>
           </div>
         ))}
@@ -116,7 +116,7 @@ const featuredArticles = allArticles
         <h2 class="section-title">Nástroje pro investory</h2>
       </div>
       <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
-        <a href="/trhy" class="group bg-card border border-gold-primary/20 rounded-2xl p-8 card-hover flex flex-col relative overflow-hidden">
+        <a href="/trhy" class="reveal reveal-delay-1 group bg-card border border-gold-primary/20 rounded-2xl p-8 card-hover flex flex-col relative overflow-hidden">
           <div class="absolute top-3 right-3 flex items-center gap-1.5 bg-accent-green/10 border border-accent-green/30 rounded-full px-2.5 py-1">
             <span class="relative flex h-1.5 w-1.5">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75"></span>
@@ -129,19 +129,19 @@ const featuredArticles = allArticles
           <p class="text-text-secondary text-sm leading-relaxed flex-1">Aktuální ceny Bitcoinu, Etherea, akcií Apple, NVIDIA a dalších. Data v reálném čase.</p>
           <span class="text-gold-primary text-sm font-semibold mt-5 group-hover:text-gold-light transition-colors">Zobrazit trhy →</span>
         </a>
-        <a href="/kalkulacka" class="group bg-card border border-border rounded-2xl p-8 card-hover flex flex-col">
+        <a href="/kalkulacka" class="reveal reveal-delay-2 group bg-card border border-border rounded-2xl p-8 card-hover flex flex-col">
           <div class="text-5xl mb-5">📊</div>
           <h3 class="font-display text-2xl font-bold text-text-primary mb-2 group-hover:text-gold-primary transition-colors">Kalkulačky</h3>
           <p class="text-text-secondary text-sm leading-relaxed flex-1">Investiční, hypoteční i mzdová kalkulačka. Složené úročení, splátka hypotéky nebo čistá mzda — vše zdarma.</p>
           <span class="text-gold-primary text-sm font-semibold mt-5 group-hover:text-gold-light transition-colors">Otevřít kalkulačky →</span>
         </a>
-        <a href="/slovnik" class="group bg-card border border-border rounded-2xl p-8 card-hover flex flex-col">
+        <a href="/slovnik" class="reveal reveal-delay-3 group bg-card border border-border rounded-2xl p-8 card-hover flex flex-col">
           <div class="text-5xl mb-5">📖</div>
           <h3 class="font-display text-2xl font-bold text-text-primary mb-2 group-hover:text-gold-primary transition-colors">Slovník byznysu</h3>
           <p class="text-text-secondary text-sm leading-relaxed flex-1">Přes 40 finančních pojmů vysvětlených česky. ETF, DCA, Bitcoin, inflace — vše na jednom místě.</p>
           <span class="text-gold-primary text-sm font-semibold mt-5 group-hover:text-gold-light transition-colors">Otevřít slovník →</span>
         </a>
-        <a href="/index-trhu" class="group bg-card border border-border rounded-2xl p-8 card-hover flex flex-col">
+        <a href="/index-trhu" class="reveal reveal-delay-4 group bg-card border border-border rounded-2xl p-8 card-hover flex flex-col">
           <div class="text-5xl mb-5">🌡️</div>
           <h3 class="font-display text-2xl font-bold text-text-primary mb-2 group-hover:text-gold-primary transition-colors">Index trhu</h3>
           <p class="text-text-secondary text-sm leading-relaxed flex-1">Týdenní sentiment indicator — jak Byzák vidí náladu trhů na škále 1 (medvěd) až 10 (býk).</p>
@@ -155,7 +155,7 @@ const featuredArticles = allArticles
   <section class="py-28 bg-surface">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid md:grid-cols-2 gap-16 items-center">
-        <div>
+        <div class="reveal">
           <p class="text-gold-primary text-sm font-semibold uppercase tracking-widest mb-4">O Byznys Denne</p>
           <h2 class="section-title mb-6">Finance pro<br /><span class="text-gold-primary">normální lidi.</span></h2>
           <p class="text-text-secondary text-lg leading-relaxed mb-5">
@@ -169,7 +169,7 @@ const featuredArticles = allArticles
             <a href="/zacatecnik" class="text-text-secondary hover:text-gold-primary transition-colors text-sm font-medium">🎓 Začínáš? Začni zde →</a>
           </div>
         </div>
-        <div class="flex items-center justify-center">
+        <div class="flex items-center justify-center reveal reveal-delay-2">
           <div class="relative">
             <div class="w-56 h-56 md:w-72 md:h-72 bg-card border-2 border-gold-primary/20 rounded-full flex items-center justify-center shadow-[0_0_80px_rgba(212,175,55,0.15)] hover:shadow-[0_0_100px_rgba(212,175,55,0.25)] transition-all duration-500">
               <span class="text-8xl md:text-9xl">🐂</span>

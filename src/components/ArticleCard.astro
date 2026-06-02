@@ -25,11 +25,12 @@ const emoji = {
 
 <a
   href={`/clanky/${article.slug}`}
-  class="group flex flex-col bg-card border border-border rounded-xl overflow-hidden card-hover"
+  class="reveal group flex flex-col bg-card border border-border rounded-2xl overflow-hidden card-hover shadow-soft"
   data-article-category={category}
 >
-  <div class="h-44 bg-surface flex items-center justify-center border-b border-border">
-    <span class="text-6xl opacity-60 group-hover:opacity-100 transition-opacity duration-300 group-hover:scale-110 inline-block transition-transform">{emoji}</span>
+  <div class="relative h-44 bg-surface flex items-center justify-center border-b border-border overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-gold-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    <span class="relative text-6xl opacity-60 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110 inline-block">{emoji}</span>
   </div>
 
   <div class="flex flex-col flex-1 p-6">

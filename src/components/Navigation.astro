@@ -37,6 +37,15 @@ function isActive(href: string) {
             {link.label}
           </a>
         ))}
+        <button id="theme-toggle" class="theme-toggle" aria-label="Přepnout světlý/tmavý režim" title="Přepnout režim">
+          <svg id="theme-icon-sun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="4" />
+            <path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41" />
+          </svg>
+          <svg id="theme-icon-moon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+          </svg>
+        </button>
         <a
           href="https://instagram.com/byznysdenne"
           target="_blank"
@@ -50,15 +59,26 @@ function isActive(href: string) {
         </a>
       </div>
 
-      <!-- Mobile hamburger -->
-      <button id="mobile-menu-btn" class="md:hidden p-2 text-text-secondary hover:text-text-primary transition-colors" aria-label="Menu">
+      <!-- Mobile controls -->
+      <div class="md:hidden flex items-center gap-1">
+        <button id="theme-toggle-mobile" class="theme-toggle" aria-label="Přepnout světlý/tmavý režim">
+          <svg id="theme-icon-sun-m" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="4" />
+            <path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41" />
+          </svg>
+          <svg id="theme-icon-moon-m" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+          </svg>
+        </button>
+        <button id="mobile-menu-btn" class="p-2 text-text-secondary hover:text-text-primary transition-colors" aria-label="Menu">
         <svg id="icon-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
         <svg id="icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
         </svg>
-      </button>
+        </button>
+      </div>
     </div>
   </nav>
 
@@ -115,5 +135,47 @@ function isActive(href: string) {
     menu?.classList.toggle('hidden');
     iconOpen?.classList.toggle('hidden', !isOpen);
     iconClose?.classList.toggle('hidden', isOpen);
+  });
+
+  // ---- Theme toggle (dark/light) ----
+  const sun = document.getElementById('theme-icon-sun');
+  const moon = document.getElementById('theme-icon-moon');
+  const sunM = document.getElementById('theme-icon-sun-m');
+  const moonM = document.getElementById('theme-icon-moon-m');
+
+  function syncThemeIcons(theme: string) {
+    const isDark = theme === 'dark';
+    // In dark mode show the sun (click → go light); in light show the moon.
+    sun?.classList.toggle('hidden', !isDark);
+    moon?.classList.toggle('hidden', isDark);
+    sunM?.classList.toggle('hidden', !isDark);
+    moonM?.classList.toggle('hidden', isDark);
+  }
+
+  function currentTheme(): string {
+    return document.documentElement.getAttribute('data-theme') || 'dark';
+  }
+
+  function setTheme(theme: string) {
+    document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem('theme', theme); } catch (e) {}
+    const meta = document.querySelector('meta[name="theme-color"]');
+    meta?.setAttribute('content', theme === 'light' ? '#faf9f7' : '#0a0a0a');
+    syncThemeIcons(theme);
+  }
+
+  function toggleTheme() {
+    setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+  }
+
+  syncThemeIcons(currentTheme());
+  document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+  document.getElementById('theme-toggle-mobile')?.addEventListener('click', toggleTheme);
+
+  // React to OS preference changes when user hasn't explicitly chosen
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+    if (!localStorage.getItem('theme')) {
+      setTheme(e.matches ? 'light' : 'dark');
+    }
   });
 </script>
